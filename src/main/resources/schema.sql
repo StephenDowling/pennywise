@@ -16,4 +16,12 @@ CREATE TABLE IF NOT EXISTS Budget (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Category (
+    category_id SERIAL PRIMARY KEY, 
+    user_id INT NOT NULL, 
+    name VARCHAR(255) NOT NULL, 
+    CONSTRAINT FK_Category_User FOREIGN KEY (user_id) REFERENCES users (user_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 

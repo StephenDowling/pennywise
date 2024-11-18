@@ -6,12 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import stephendowling.pennywise.dto.BudgetResponse;
-//import stephendowling.pennywise.dto.UserSummary;
 import stephendowling.pennywise.model.Budget;
 import stephendowling.pennywise.service.BudgetService;
 
 import java.util.List;
-//import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/budgets")

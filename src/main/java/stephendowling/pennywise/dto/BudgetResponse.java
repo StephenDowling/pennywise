@@ -13,6 +13,8 @@ public class BudgetResponse {
     private LocalDate endDate;
     private UserSummary user;
 
+    // Constructor, getters, setters
+
     public Integer getBudgetId() {
         return this.budgetId;
     }
@@ -53,7 +55,7 @@ public class BudgetResponse {
         this.user = user;
     }
 
-    // Constructor, getters, setters
+   
     public BudgetResponse(Integer budgetId, BigDecimal amount, LocalDate startDate, LocalDate endDate, UserSummary user) {
         this.budgetId = budgetId;
         this.amount = amount;

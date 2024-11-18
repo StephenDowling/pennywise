@@ -15,7 +15,6 @@ import stephendowling.pennywise.repository.BudgetRepository;
 import stephendowling.pennywise.repository.UserRepository;
 
 import java.util.List;
-//import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
