@@ -1,0 +1,65 @@
+{
+    "Users": [
+      {
+        "username": "stowling",
+        "email": "stowling@gmail.com",
+        "password": "password",
+        "role": "ADMIN"
+      },
+      {
+        "username": "AmyRooney",
+        "email": "amyrooney34@gmail.com",
+        "password": "I-love-basketball",
+        "role": "USER"
+      },
+      {
+        "username": "Millie",
+        "email": "milliethedog@gmail.com",
+        "password": "woofwoof",
+        "role": "USER"
+      },
+      {
+        "username": "Rosie",
+        "email": "Rosiethecat@gmail.com",
+        "password": "purrrrr",
+        "role": "USER"
+      },
+      {
+        "username": "Misty",
+        "email": "ahhhhhhhh@gmail.com",
+        "password": "attack",
+        "role": "USER"
+      },
+      {
+        "username": "Andy",
+        "email": "andydowl@gmail.com",
+        "password": "cyclingandsmoking",
+        "role": "USER"
+      },
+      {
+        "username": "Chris",
+        "email": "chrisfarrell@hotmail.com",
+        "password": "ilovedrew",
+        "role": "USER"
+      },
+      {
+        "username": "Rob",
+        "email": "robfarrell@yahoo.co.uk",
+        "password": "iloveaeroplanes",
+        "role": "USER"
+      },
+      {
+        "username": "Mick",
+        "email": "mdowl1991@hotmail.com",
+        "password": "f1mclaren",
+        "role": "USER"
+      },
+      {
+        "username": "Julie",
+        "email": "jfraggell@hotmail.com",
+        "password": "bowie",
+        "role": "USER"
+      }
+
+    ]
+  }
