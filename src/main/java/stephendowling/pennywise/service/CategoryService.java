@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import stephendowling.pennywise.config.CustomUserDetails;
 import stephendowling.pennywise.dto.CategoryResponse;
 import stephendowling.pennywise.dto.UserSummary;
+import stephendowling.pennywise.exceptions.CategoryNotFoundException;
 import stephendowling.pennywise.exceptions.UnauthorisedAccessException;
 import stephendowling.pennywise.exceptions.UserNotFoundException;
 import stephendowling.pennywise.model.Category;
@@ -29,6 +30,8 @@ public class CategoryService extends BaseService {
         this.userRepository=userRepository;
     }
 
+    /* ADMIN ONLY */
+    // Find all categories
     public List<CategoryResponse> findAll() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof CustomUserDetails) {
@@ -39,18 +42,33 @@ public class CategoryService extends BaseService {
                 .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
     
             if (!isAdmin) {
-                throw new UnauthorisedAccessException("Unauthorized access");
+                throw new UnauthorisedAccessException("Unauthorised access");
             }
         } else {
             throw new RuntimeException("User not authenticated");
         }
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
-                      .map(this::mapToCategoryResponse) // map each Category to BudgetResponse
+                      .map(this::mapToCategoryResponse) // map each Category to CategoryResponse
                       .collect(Collectors.toList());
     }
 
-    //create a new category
+    /* METHODS FOR ALL USERS */
+    // Get all categories for the currently logged-in user
+    public List<CategoryResponse> getAllCategoriesForCurrentUser() {
+        // Get the authenticated user's ID
+        Integer authenticatedUserId = getAuthenticatedUserId();
+
+        // Fetch all budgets for the authenticated user
+        List<Category> categories = categoryRepository.findByUser_UserId(authenticatedUserId);
+
+        // Map the list of budgets to BudgetResponse DTOs and return the list
+        return categories.stream()
+                    .map(this::mapToCategoryResponse)
+                    .collect(Collectors.toList());
+    }
+
+    //create a category
     public CategoryResponse create(Category category) {
         // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
@@ -69,7 +87,7 @@ public class CategoryService extends BaseService {
         return mapToCategoryResponse(category);
     }
 
-    //update Category
+    //update a category
     public CategoryResponse update(Category category, Integer id) {
         // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
@@ -91,28 +109,24 @@ public class CategoryService extends BaseService {
                     Category updatedCategory = categoryRepository.save(existingCategory);
                     return mapToCategoryResponse(updatedCategory); 
                 })
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException());
     }
 
-    public void delete(Integer id) {
+    //delete a category
+    public void delete(Integer categoryId) {
         Integer authenticatedUserId = getAuthenticatedUserId();
-        if (!authenticatedUserId.equals(id)) {
-            throw new UnauthorisedAccessException("Unauthorized delete attempt");
+
+        // Retrieve the category by its ID
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException());
+
+        // Verify that the category belongs to the authenticated user
+        if (!category.getUser().getUserId().equals(authenticatedUserId)) {
+            throw new UnauthorisedAccessException("Unauthorised delete attempt");
         }
-        categoryRepository.deleteById(id);
-    }
 
-    public List<CategoryResponse> getAllCategoriesForAuthenticatedUser() {
-        // Get the authenticated user's ID
-        Integer authenticatedUserId = getAuthenticatedUserId();
-
-        // Fetch all budgets for the authenticated user
-        List<Category> categories = categoryRepository.findByUser_UserId(authenticatedUserId);
-
-        // Map the list of budgets to BudgetResponse DTOs and return the list
-        return categories.stream()
-                    .map(this::mapToCategoryResponse)
-                    .collect(Collectors.toList());
+        // If everything is valid, delete the category
+        categoryRepository.deleteById(categoryId);
     }
 
     // Helper method to map Category to CategoryResponse DTO
@@ -125,6 +139,7 @@ public class CategoryService extends BaseService {
         // Create and return the BudgetResponse DTO, including the UserSummary
         return new CategoryResponse(
                 category.getName(),
+                category.getCategoryId(),
                 userSummary // Only user ID and username will be included, no password
         );
     }

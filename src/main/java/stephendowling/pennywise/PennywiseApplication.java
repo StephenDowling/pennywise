@@ -11,5 +11,4 @@ public class PennywiseApplication {
 		SpringApplication.run(PennywiseApplication.class, args);
 	}
 
-	
 }

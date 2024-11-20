@@ -29,12 +29,21 @@ public class CategoryController {
         this.categoryService=categoryService;
     }
 
-    //get all categories 
+    /* ADMIN ONLY */
+    // Find all categories
     @GetMapping //http://localhost:8080/api/categories
     public List<CategoryResponse> getAllCategories() {
         return categoryService.findAll();  
     }
 
+    /* METHODS FOR ALL USERS */
+    // Get all categories for the currently logged-in user
+    @GetMapping("/my-categories") //http://localhost:8080/api/categories/my-categories
+    public List<CategoryResponse> getAllCategoriesForAuthenticatedUser() {
+        // Call the service method to get all categories for the authenticated user
+        return categoryService.getAllCategoriesForCurrentUser();
+    }
+    
     // Create a new category 
     @PostMapping //http://localhost:8080/api/categories
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody Category category) {
@@ -58,13 +67,6 @@ public class CategoryController {
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // Endpoint to fetch all categories for the authenticated user
-    @GetMapping("/my-categories") //http://localhost:8080/api/categories/my-categories
-    public List<CategoryResponse> getAllCategoriesForAuthenticatedUser() {
-        // Call the service method to get all categories for the authenticated user
-        return categoryService.getAllCategoriesForAuthenticatedUser();
     }
 
 }

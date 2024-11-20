@@ -1,38 +1,39 @@
 package stephendowling.pennywise.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import stephendowling.pennywise.config.CustomUserDetails;
-import stephendowling.pennywise.dto.BudgetResponse;
-import stephendowling.pennywise.dto.UserSummary;
-import stephendowling.pennywise.exceptions.BudgetNotFoundException;
-import stephendowling.pennywise.exceptions.UnauthorisedAccessException;
-import stephendowling.pennywise.exceptions.UserNotFoundException;
-import stephendowling.pennywise.model.Budget;
-import stephendowling.pennywise.model.User;
-import stephendowling.pennywise.repository.BudgetRepository;
-import stephendowling.pennywise.repository.UserRepository;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-public class BudgetService extends BaseService{
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
-    private final BudgetRepository budgetRepository;
+import stephendowling.pennywise.config.CustomUserDetails;
+import stephendowling.pennywise.dto.GoalResponse;
+import stephendowling.pennywise.dto.UserSummary;
+import stephendowling.pennywise.exceptions.CategoryNotFoundException;
+import stephendowling.pennywise.exceptions.GoalNotFoundException;
+import stephendowling.pennywise.exceptions.UnauthorisedAccessException;
+import stephendowling.pennywise.exceptions.UserNotFoundException;
+import stephendowling.pennywise.model.Goal;
+import stephendowling.pennywise.model.User;
+import stephendowling.pennywise.repository.GoalRepository;
+import stephendowling.pennywise.repository.UserRepository;
+
+@Service
+public class GoalService extends BaseService {
+
     private final UserRepository userRepository;
+    private final GoalRepository goalRepository;
 
     @Autowired
-    public BudgetService(BudgetRepository budgetRepository, UserRepository userRepository) {
-        this.budgetRepository = budgetRepository;
+    public GoalService(UserRepository userRepository, GoalRepository goalRepository){
         this.userRepository = userRepository;
+        this.goalRepository = goalRepository;
     }
 
     /* ADMIN ONLY */
-    // Find all budgets
-    public List<BudgetResponse> findAll() {
+    //Find all Goals
+    public List<GoalResponse> findAll() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof CustomUserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
@@ -47,30 +48,29 @@ public class BudgetService extends BaseService{
         } else {
             throw new RuntimeException("User not authenticated");
         }
-
-        List<Budget> budgets = budgetRepository.findAll();
-        return budgets.stream()
-                      .map(this::mapToBudgetResponse) // map each Budget to BudgetResponse
+        List<Goal> goals = goalRepository.findAll();
+        return goals.stream()
+                      .map(this::mapToGoalResponse) // map each Category to BudgetResponse
                       .collect(Collectors.toList());
     }
 
     /* METHODS FOR ALL USERS */
-    // Get all budgets for the currently logged-in user
-    public List<BudgetResponse> getAllBudgetsForCurrentUser() {
+    //get all goals for current user
+    public List<GoalResponse> getAllGoalsForCurrentUser() {
         // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
         // Fetch all budgets for the authenticated user
-        List<Budget> budgets = budgetRepository.findByUser_UserId(authenticatedUserId);
+        List<Goal> goals = goalRepository.findByUser_UserId(authenticatedUserId);
 
         // Map the list of budgets to BudgetResponse DTOs and return the list
-        return budgets.stream()
-                    .map(this::mapToBudgetResponse)
+        return goals.stream()
+                    .map(this::mapToGoalResponse)
                     .collect(Collectors.toList());
     }
-        
-    // Create a new budget
-    public BudgetResponse create(Budget budget) {
+
+    //create a new goal 
+    public GoalResponse create(Goal goal) {
         // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
@@ -79,73 +79,72 @@ public class BudgetService extends BaseService{
                                 .orElseThrow(() -> new UserNotFoundException());
 
         // Associate the budget with the authenticated user
-        budget.setUser(user);
+        goal.setUser(user);
 
         // Save the Budget entity
-        budget = budgetRepository.save(budget);
+        goal = goalRepository.save(goal);
 
         // Map the saved Budget entity to a BudgetResponse and return it
-        return mapToBudgetResponse(budget);
+        return mapToGoalResponse(goal);
     }
 
-    // Update an existing budget
-    public BudgetResponse update(Budget budget, Integer id) {
-        // Get the authenticated user's ID
+    //update a goal
+    public GoalResponse update(Goal goal, Integer id) {
+       // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        return budgetRepository.findById(id)
-                .map(existingBudget -> {
-                    // Ensure the authenticated user is the one who owns the budget
-                    if (!existingBudget.getUser().getUserId().equals(authenticatedUserId)) {
-                        throw new UnauthorisedAccessException("You can only update your own budgets");
+        return goalRepository.findById(id)
+                .map(existingGoal -> {
+                    // Ensure the authenticated user is the one who owns the category
+                    if (!existingGoal.getUser().getUserId().equals(authenticatedUserId)) {
+                        throw new UnauthorisedAccessException("You can only update your own categories");
                     }
 
-                    // Update the budget fields
-                    existingBudget.setAmount(budget.getAmount());
-                    existingBudget.setStartDate(budget.getStartDate());
-                    existingBudget.setEndDate(budget.getEndDate());
+                    // Update the goal fields
+                    existingGoal.setName(goal.getName());
 
                     // Ensure user is still associated with the authenticated user (for consistency)
-                    existingBudget.setUser(existingBudget.getUser());  // No need to update the user, it's already the authenticated user
+                    existingGoal.setUser(existingGoal.getUser());  // No need to update the user, it's already the authenticated user
 
                     // Save and return the updated budget
-                    Budget updatedBudget = budgetRepository.save(existingBudget);
-                    return mapToBudgetResponse(updatedBudget); // Return mapped response instead of Budget
+                    Goal updatedGoal = goalRepository.save(existingGoal);
+                    return mapToGoalResponse(updatedGoal); 
                 })
-                .orElseThrow(() -> new RuntimeException("Budget not found"));
+                .orElseThrow(() -> new GoalNotFoundException());
     }
 
-    // Delete a budget
-    public void delete(Integer budgetId) {
+    //delete a goal
+    public void delete(Integer goalId) {
         Integer authenticatedUserId = getAuthenticatedUserId();
 
         // Retrieve the category by its ID
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> new BudgetNotFoundException());
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new CategoryNotFoundException());
 
         // Verify that the category belongs to the authenticated user
-        if (!budget.getUser().getUserId().equals(authenticatedUserId)) {
+        if (!goal.getUser().getUserId().equals(authenticatedUserId)) {
             throw new UnauthorisedAccessException("Unauthorised delete attempt");
         }
 
         // If everything is valid, delete the category
-        budgetRepository.deleteById(budgetId);
+        goalRepository.deleteById(goalId);
     }
 
-    // Helper method to map Budget to BudgetResponse DTO
-    private BudgetResponse mapToBudgetResponse(Budget budget) {
-        User user = budget.getUser(); // Get associated user from Budget
+    //helper method for mapping Goal to GoalResponse DTO
+    private GoalResponse mapToGoalResponse(Goal goal){
+       User user = goal.getUser(); // Get associated user from Goal
         
         // Map User to UserSummary DTO (avoiding full User details like password)
         UserSummary userSummary = new UserSummary(user.getUserId(), user.getUsername());
         
         // Create and return the BudgetResponse DTO, including the UserSummary
-        return new BudgetResponse(
-                budget.getBudgetId(),
-                budget.getAmount(),
-                budget.getStartDate(),
-                budget.getEndDate(),
+        return new GoalResponse(
+                goal.getGoalId(),
+                goal.getName(),
+                goal.getTargetAmount(),
+                goal.getDeadline(),
                 userSummary // Only user ID and username will be included, no password
         );
     }
+    
 }

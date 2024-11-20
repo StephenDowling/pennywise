@@ -24,4 +24,31 @@ CREATE TABLE IF NOT EXISTS Category (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Goal (
+    goal_id SERIAL PRIMARY KEY, 
+    user_id INT NOT NULL, 
+    name VARCHAR(255) NOT NULL, 
+    target_amount DECIMAL(10, 2) NOT NULL, 
+    current_amount DECIMAL(10, 2) NOT NULL, 
+    deadline DATE NOT NULL, 
+    status VARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Goal_User FOREIGN KEY (user_id) REFERENCES users (user_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Transaction (
+    transaction_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    date DATE NOT NULL,  
+    description TEXT,
+    type VARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Transaction_User FOREIGN KEY (user_id) REFERENCES users (user_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_Transaction_Category FOREIGN KEY (category_id) REFERENCES Category (category_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 

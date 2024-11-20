@@ -22,34 +22,29 @@ public class BudgetController {
         this.budgetService = budgetService;
     }
 
-    // Get all budgets (returning a List of BudgetResponse DTOs instead of List<Budget>)
+    /* ADMIN ONLY */
+    // Get all budgets 
     @GetMapping //http://localhost:8080/api/budgets
     public List<BudgetResponse> getAllBudgets() {
         return budgetService.findAll();  // Service now returns List<BudgetResponse>
     }
 
-    // Get budget by ID (returning BudgetResponse instead of Budget)
-    @GetMapping("/{id}") //http://localhost:8080/api/budgets/{id}
-    public ResponseEntity<BudgetResponse> getBudgetById(@PathVariable Integer id) {
-    try {
-        BudgetResponse budgetResponse = budgetService.findById(id); // Get the BudgetResponse from the service
-        return ResponseEntity.ok(budgetResponse); // Return the BudgetResponse wrapped in ResponseEntity
-    } catch (RuntimeException e) {
-        return ResponseEntity.notFound().build(); // Return 404 if Budget not found
+    /* METHODS FOR ALL USERS */
+    // Get all budgets for the currently logged-in user
+    @GetMapping("/my-budgets") //http://localhost:8080/api/budgets/my-budgets
+    public List<BudgetResponse> getAllBudgetsForAuthenticatedUser() {
+        // Call the service method to get all budgets for the authenticated user
+        return budgetService.getAllBudgetsForCurrentUser();
     }
-}
 
-
-
-
-    // Create a new budget (this already returns BudgetResponse, no change needed here)
+    // Create a new budget 
     @PostMapping //http://localhost:8080/api/budgets
     public ResponseEntity<BudgetResponse> createBudget(@RequestBody Budget budget) {
         BudgetResponse response = budgetService.create(budget);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Update a budget (updating Budget, return BudgetResponse to avoid exposing sensitive data)
+    // Update a budget 
     @PutMapping("/{id}") //http://localhost:8080/api/budgets/{id}
     public ResponseEntity<BudgetResponse> updateBudget(@RequestBody Budget budget, @PathVariable Integer id) {
         try {
@@ -67,10 +62,5 @@ public class BudgetController {
         return ResponseEntity.noContent().build();
     }
 
-    // Endpoint to fetch all budgets for the authenticated user
-    @GetMapping("/my-budgets") //http://localhost:8080/api/budgets/my-budgets
-    public List<BudgetResponse> getAllBudgetsForAuthenticatedUser() {
-        // Call the service method to get all budgets for the authenticated user
-        return budgetService.getAllBudgetsForAuthenticatedUser();
-    }
+
 }

@@ -28,8 +28,8 @@ public class UserService extends BaseService {
         this.userRepository = userRepository;
     }
 
-    
-    // Find all users - Admin only method 
+    /* ADMIN ONLY */
+    // Find all users
     public List<UserSummary> findAll() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof CustomUserDetails) {
@@ -52,7 +52,7 @@ public class UserService extends BaseService {
                             .toList();
     }
 
-    // Count the total number of users - Admin only
+    // Count the total number of users
     public long count(){
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (principal instanceof CustomUserDetails) {
@@ -73,15 +73,46 @@ public class UserService extends BaseService {
 
     // Find user by ID 
     public Optional<UserSummary> findById(Integer id) {
-        Integer authenticatedUserId = getAuthenticatedUserId();
-        if (!authenticatedUserId.equals(id) ) {
-            throw new UnauthorisedAccessException("Unauthorized access to another user's data");
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) principal;
+    
+            // Check if the user has ADMIN role
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
+    
+            if (!isAdmin) {
+                throw new UnauthorisedAccessException("Unauthorized access");
+            }
+        } else {
+            throw new RuntimeException("User not authenticated");
         }
         return userRepository.findById(id)
                             .map(this::mapToUserSummary);
     }
-    
 
+    // Find a user by username
+    public Optional<UserSummary> findByUsername(String username) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) principal;
+    
+            // Check if the user has ADMIN role
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
+    
+            if (!isAdmin) {
+                throw new UnauthorisedAccessException("Unauthorized access");
+            }
+        } else {
+            throw new RuntimeException("User not authenticated");
+        }
+        // Fetch the user and map to UserSummary if found
+        return userRepository.findByUsername(username)
+            .map(this::mapToUserSummary); // Use the helper method to map
+    }
+    
+    /* METHODS FOR ALL USERS */
     // Create a new User (with encoded password) - different to a user registering themselves 
     public User create(User user) {
         if (user.getPassword() != null) { //error handling making sure user has provided password 
@@ -116,7 +147,6 @@ public class UserService extends BaseService {
             })
             .orElseThrow(() -> new UserNotFoundException());
     }
-    
 
     // Delete a user by ID
     public void delete(Integer id) {
@@ -127,16 +157,6 @@ public class UserService extends BaseService {
         userRepository.deleteById(id);
     }
     
-    // Find a user by username
-    public Optional<User> findByUsername(String username) {
-        String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!authenticatedUsername.equals(username)) {
-            throw new UnauthorisedAccessException("Unauthorized access to another user's data");
-        }
-        return userRepository.findByUsername(username);
-    }
-    
-
     //register a new user 
     public User registerUser(RegistrationRequest request) { //request is a DTO from the user 
         // Check for existing username or email
