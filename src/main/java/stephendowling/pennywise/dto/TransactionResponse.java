@@ -8,6 +8,8 @@ public class TransactionResponse {
     private BigDecimal amount;
     private LocalDate date;
     private String type;
+    private String description;
+
     private String categoryName; 
     private UserSummary user;  
 
@@ -16,11 +18,12 @@ public class TransactionResponse {
     public TransactionResponse() {
     }
 
-    public TransactionResponse(Integer transactionId, BigDecimal amount, LocalDate date, String type, String categoryName, UserSummary user) {
+    public TransactionResponse(Integer transactionId, BigDecimal amount, LocalDate date, String type, String description, String categoryName, UserSummary user) {
         this.transactionId = transactionId;
         this.amount = amount;
         this.date = date;
         this.type = type;
+        this.description= description;
         this.categoryName = categoryName;
         this.user = user;
     }
@@ -55,6 +58,14 @@ public class TransactionResponse {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCategoryName() {

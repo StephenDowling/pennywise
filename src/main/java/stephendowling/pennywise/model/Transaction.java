@@ -40,6 +40,8 @@ public class Transaction {
     @NotNull
     private LocalDate date;
 
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private TransactionType type;
 
@@ -47,12 +49,13 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Integer transactionId, User user, Category category, BigDecimal amount, LocalDate date, TransactionType type) {
+    public Transaction(Integer transactionId, User user, Category category, BigDecimal amount, LocalDate date, String description, TransactionType type) {
         this.transactionId = transactionId;
         this.user = user;
         this.category = category;
         this.amount = amount;
         this.date = date;
+        this.description=description;
         this.type = type;
     }
 
@@ -95,6 +98,15 @@ public class Transaction {
     public void setDate(LocalDate date) {
         this.date = date;
     }
+    
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     public TransactionType getType() {
         return this.type;

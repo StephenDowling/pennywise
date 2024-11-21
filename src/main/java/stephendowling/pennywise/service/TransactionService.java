@@ -127,6 +127,7 @@ public class TransactionService extends BaseService {
                     existingTransaction.setAmount(transaction.getAmount());
                     existingTransaction.setDate(transaction.getDate());
                     existingTransaction.setType(transaction.getType());
+                    existingTransaction.setDescription(transaction.getDescription());
     
                     // Save and return the updated transaction
                     Transaction updatedTransaction = transactionRepository.save(existingTransaction);
@@ -160,6 +161,7 @@ public class TransactionService extends BaseService {
         response.setAmount(transaction.getAmount());
         response.setDate(transaction.getDate());
         response.setType(transaction.getType().toString());
+        response.setDescription(transaction.getDescription());
 
         // Map User to UserSummary
         UserSummary userSummary = new UserSummary(transaction.getUser().getUserId(), 

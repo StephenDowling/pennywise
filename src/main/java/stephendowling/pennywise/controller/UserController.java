@@ -90,7 +90,7 @@ public class UserController {
     }
 
     //register new user
-    @PostMapping("/register") //http://localhost:8080/api/users/register
+    @PostMapping("/register-new") //http://localhost:8080/api/users/register
     public ResponseEntity<String> registerUser(@RequestBody @Valid RegistrationRequest request) {
         userService.registerUser(request);
         return ResponseEntity.ok("User registered successfully");
