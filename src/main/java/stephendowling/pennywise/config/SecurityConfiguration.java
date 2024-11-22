@@ -41,21 +41,24 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/register", "/password", "/css/**", "/js/**", "/images/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .formLogin(form -> form
-            .loginPage("/login")
-            .permitAll()
-        )
-        .logout(logout -> logout
-            .logoutUrl("/logout")
-            .permitAll()
-        );
+            .csrf(csrf -> csrf.disable()) // Disabling CSRF for APIs (be careful with this in production)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/register", "/password", "/css/**", "/js/**", "/images/**", "/api/users/register-new") // Include your API endpoint here
+                .permitAll()  // Allow unauthenticated access to these endpoints
+                .anyRequest().authenticated() // Other requests require authentication
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .permitAll()
+                .defaultSuccessUrl("/", true)  
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .permitAll()
+            );
         return http.build();
     }
+    
 
 
 }

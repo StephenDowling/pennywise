@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import stephendowling.pennywise.service.UserService;
 import stephendowling.pennywise.dto.RegistrationRequest;
+import stephendowling.pennywise.dto.RegistrationResponse;
 import stephendowling.pennywise.dto.UserSummary;
 import stephendowling.pennywise.exceptions.UserNotFoundException;
 import stephendowling.pennywise.model.User;
@@ -90,10 +91,18 @@ public class UserController {
     }
 
     //register new user
-    @PostMapping("/register-new") //http://localhost:8080/api/users/register
-    public ResponseEntity<String> registerUser(@RequestBody @Valid RegistrationRequest request) {
-        userService.registerUser(request);
-        return ResponseEntity.ok("User registered successfully");
+    @PostMapping("/register-new") //http://localhost:8080/api/users/register-new
+    public ResponseEntity<?> registerUser(@RequestBody @Valid RegistrationRequest request) {
+        try {
+            userService.registerUser(request); // Your logic to register the user
+            // Create a response object with a message
+            RegistrationResponse response = new RegistrationResponse("User registered successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Return error in case of an exception
+            RegistrationResponse errorResponse = new RegistrationResponse("Error during registration: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 
 

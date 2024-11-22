@@ -72,20 +72,27 @@ public class CategoryService extends BaseService {
     public CategoryResponse create(Category category) {
         // Get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
-
+    
         // Fetch the authenticated user from the database
         User user = userRepository.findById(authenticatedUserId)
-                                .orElseThrow(() -> new UserNotFoundException());
-
-        // Associate the budget with the authenticated user
+                .orElseThrow(() -> new UserNotFoundException());
+    
+        // Check if a category with the same name already exists for the user
+        boolean categoryExists = categoryRepository.existsByUserAndName(user, category.getName());
+        if (categoryExists) {
+            throw new IllegalArgumentException("A category with this name already exists.");
+        }
+    
+        // Associate the category with the authenticated user
         category.setUser(user);
-
-        // Save the Budget entity
+    
+        // Save the Category entity
         category = categoryRepository.save(category);
-
-        // Map the saved Budget entity to a BudgetResponse and return it
+    
+        // Map the saved Category entity to a CategoryResponse and return it
         return mapToCategoryResponse(category);
     }
+    
 
     //update a category
     public CategoryResponse update(Category category, Integer id) {

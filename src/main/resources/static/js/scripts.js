@@ -22,45 +22,243 @@ window.addEventListener('DOMContentLoaded', event => {
 
 });
 
-// Wait for the DOM to be fully loaded before adding event listeners
+//register a new user 
 document.addEventListener("DOMContentLoaded", function () {
-    // Access the form element
-    const form = document.getElementById('categoryForm');
-    
-    // Add event listener for form submission
-    form.addEventListener('submit', function (event) {
-        // Prevent the form from submitting the default way (refresh)
+    const registerForm = document.querySelector("#registerForm");
+
+    registerForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        // Get the category name from the form input field
-        const categoryName = document.getElementById('categoryName').value;
+        const username = document.querySelector("#inputUsername").value;
+        const email = document.querySelector("#inputEmail").value;
+        const password = document.querySelector("#inputPassword").value;
+        const passwordConfirm = document.querySelector("#inputPasswordConfirm").value;
 
-        // Prepare the data to send in the POST request
-        const categoryData = {
-            name: categoryName
+        if (password !== passwordConfirm) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        const user = {
+            username,
+            email,
+            password
         };
 
-        // Make the POST request to create the category
-        fetch('http://localhost:8080/api/categories', {
-            method: 'POST', 
+        fetch("http://localhost:8080/api/users/register-new", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"  // Ensure correct content type
             },
-            body: JSON.stringify(categoryData) // Convert data to JSON
+            body: JSON.stringify(user)  // Stringify the JSON object
         })
-        .then(response => response.json()) // Parse the response as JSON
-        .then(data => {
-            // Display feedback message based on the response
-            if (data && data.name) {
-                document.getElementById('feedback').textContent = `Category "${data.name}" created successfully!`;
+        .then(response => {
+            if (response.ok) {
+                return response.json();  // Handle the JSON response
             } else {
-                document.getElementById('feedback').textContent = 'Failed to create category.';
+                return response.text().then(text => {
+                    throw new Error(text);  // If the response is not OK, handle it
+                });
             }
         })
+        .then(data => {
+            alert("User registered successfully!");
+        })
         .catch(error => {
-            // Catch any errors (e.g., network issues)
-            console.error('Error creating category:', error);
-            document.getElementById('feedback').textContent = 'Error creating category.';
+            alert("Error during registration: " + error.message);
         });
     });
 });
+
+
+//create category
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#createCategoryForm");
+    const errorMessageElement = document.querySelector("#errorMessage");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const categoryData = {
+            name: formData.get("categoryName"),
+        };
+
+        fetch("http://localhost:8080/api/categories", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(categoryData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Clear the error message if submission is successful
+            errorMessageElement.textContent = "";
+            alert("Category created successfully!");
+            form.reset();
+        })
+        .catch(error => {
+            // Display the error message in the HTML
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//updating a category 
+document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.querySelector("#categorySelect");
+    const updateForm = document.querySelector("#updateCategoryForm");
+    const errorMessageElement = document.querySelector("#errorMessageUpdateCategory");
+
+    // Fetch existing categories and populate the dropdown
+    fetch("http://localhost:8080/api/categories/my-categories")
+        .then(response => response.json())
+        .then(categories => {
+            categories.forEach(category => {
+                if (!category.categoryId) {
+                    console.warn("Category ID is missing for:", category);
+                    return; // Skip categories with missing IDs
+                }
+                const option = document.createElement("option");
+                option.value = category.categoryId; // Use categoryId from API response
+                option.textContent = category.name; // Display name
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching categories:", error));
+
+    // Handle form submission
+    updateForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const categoryId = categorySelect.value; // Selected category ID
+        const newCategoryName = document.querySelector("#newCategoryName").value.trim();
+
+        // Validate inputs
+        if (!categoryId || categoryId === "undefined") {
+            errorMessageElement.textContent = "Please select a valid category.";
+            return;
+        }
+        if (!newCategoryName) {
+            errorMessageElement.textContent = "Category name cannot be empty.";
+            return;
+        }
+
+        // Make the PUT request
+        fetch(`http://localhost:8080/api/categories/${categoryId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: newCategoryName }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Category updated successfully!");
+            errorMessageElement.textContent = "";
+            updateForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//delete a category 
+document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.querySelector("#categorySelectDelete");
+    const deleteForm = document.querySelector("#deleteCategoryForm");
+    const errorMessageElement = document.querySelector("#errorMessageDeleteCategory");
+
+    // Fetch existing categories and populate the dropdown
+    fetch("http://localhost:8080/api/categories/my-categories")
+    .then(response => response.json())
+    .then(categories => {
+        categories.forEach(category => {
+            if (!category.categoryId) {
+                console.warn("Category ID is missing for:", category);
+                return; // Skip categories with missing IDs
+            }
+            const option = document.createElement("option");
+            option.value = category.categoryId; // Use categoryId from API response
+            option.textContent = category.name; // Display name
+            categorySelect.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching categories:", error));
+
+    // Handle form submission
+    deleteForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const categoryId = categorySelect.value; // Selected category ID
+
+        // Validate inputs
+        if (!categoryId) {
+            errorMessageElement.textContent = "Please select a valid category.";
+            return;
+        }
+        
+
+        // Make the DELETE request
+        fetch(`http://localhost:8080/api/categories/${categoryId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            // Check if response is empty
+            if (response.status === 204) {
+                return; // No content returned, so we don't need to process further
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Category deleted successfully!");
+            errorMessageElement.textContent = "";
+            deleteForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//get all categories 
+fetch("http://localhost:8080/api/categories/my-categories")
+    .then(response => response.json())
+    .then(categories => {
+        const categoryList = document.getElementById("categoryList");
+        categories.forEach(category => {
+            const listItem = document.createElement("li");
+            listItem.classList.add("list-group-item");
+            listItem.textContent = category.name;
+            categoryList.appendChild(listItem);
+        });
+    })
+    .catch(error => console.error("Error fetching categories:", error));
+
+
+
+
