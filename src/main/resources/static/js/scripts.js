@@ -831,11 +831,312 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 });
 
+/* GOALS */
+//create a goal 
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#createGoalForm");
+    const errorMessageElement = document.querySelector("#errorMessageCreateGoal");
 
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
 
+        const formData = new FormData(form);
+        const goalData = {
+            name: formData.get("createGoalName"),
+            targetAmount: formData.get("createTargetAmount"),
+            currentAmount: formData.get("createCurrentAmount"),
+            deadline: formData.get("createDeadline"),
+            status: "IN_PROGRESS"
+        };
 
+        fetch("http://localhost:8080/api/goals", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(goalData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Clear the error message if submission is successful
+            errorMessageElement.textContent = "";
+            alert("Goal created successfully!");
+            form.reset();
+        })
+        .catch(error => {
+            // Display the error message in the HTML
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
 
+//updating a goal 
+document.addEventListener("DOMContentLoaded", function () {
+    const goalSelect = document.querySelector("#goalSelect");
+    const updateForm = document.querySelector("#updateGoalForm");
+    const errorMessageElement = document.querySelector("#errorMessageDeleteBudget");
 
+    // Fetch existing budget and populate the dropdown
+    fetch("http://localhost:8080/api/goals/my-goals")
+        .then(response => response.json())
+        .then(goals => {
+            goals.forEach(goal => {
+                if (!goal.goalId) {
+                    console.warn("Goal ID is missing for:", goal);
+                    return; // Skip goals with missing IDs
+                }
+                const option = document.createElement("option");
+                option.value = goal.goalId; // Use goalId from API response
+                option.textContent = goal.goalName; // Display name
+                goalSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching goals:", error));
 
+    // Handle form submission
+    updateForm.addEventListener("submit", function (event) {
+        event.preventDefault();
 
+        const goalId = goalSelect.value; // Selected goal ID
+        const newGoalName = document.querySelector("#updateGoalName").value.trim();
+        const newTargetAmount = document.querySelector("#updateGoalTargetAmount").value.trim();
+        const newCurrentAmount = document.querySelector("#updateGoalCurrentAmount").value.trim();
+        const newDeadline = document.querySelector("#updateDeadline").value.trim();
+        const newStatus = document.querySelector("#status").value.trim();
 
+        // Validate inputs
+        if (!goalId || goalId === "undefined") {
+            errorMessageElement.textContent = "Please select a valid budget.";
+            return;
+        }
+        if (!newGoalName) {
+            errorMessageElement.textContent = "Goal name cannot be empty.";
+            return;
+        }
+
+        // Make the PUT request
+        fetch(`http://localhost:8080/api/goals/${goalId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: newGoalName, targetAmount: newTargetAmount, currentAmount: newCurrentAmount, deadline: newDeadline, status: newStatus}),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Goal updated successfully!");
+            errorMessageElement.textContent = "";
+            updateForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//deleting a goal 
+document.addEventListener("DOMContentLoaded", function () {
+    const goalSelect = document.querySelector("#goalSelectDelete");
+    const deleteForm = document.querySelector("#deleteGoalForm");
+    const errorMessageElement = document.querySelector("#errorMessageDeleteGoal");
+
+    // Fetch existing categories and populate the dropdown
+    fetch("http://localhost:8080/api/goals/my-goals")
+    .then(response => response.json())
+    .then(goals => {
+        goals.forEach(goal => {
+            if (!goal.goalId) {
+                console.warn("Goal ID is missing for:", goal);
+                return; // Skip goals with missing IDs
+            }
+            const option = document.createElement("option");
+            option.value = goal.goalId; // Use goalId from API response
+            option.textContent = goal.goalName; // Display name
+            goalSelect.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching goals:", error));
+
+    // Handle form submission
+    deleteForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const goalId = goalSelect.value; // Selected goal ID
+
+        // Validate inputs
+        if (!goalId) {
+            errorMessageElement.textContent = "Please select a valid goal.";
+            return;
+        }
+        
+
+        // Make the DELETE request
+        fetch(`http://localhost:8080/api/goals/${goalId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            // Check if response is empty
+            if (response.status === 204) {
+                return; // No content returned, so we don't need to process further
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Goal deleted successfully!");
+            errorMessageElement.textContent = "";
+            deleteForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//goal table
+document.addEventListener("DOMContentLoaded", function () {
+    const apiUrl = "http://localhost:8080/api/goals/my-goals";
+    const tableBody = document.getElementById("goalTableBody");
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(goals => {
+            // Sort goals by deadline
+            goals.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            // Populate the table with goal data
+            goals.forEach(goal => {
+                const row = document.createElement("tr");
+
+                // Goal name
+                const goalNameCell = document.createElement("td");
+                goalNameCell.textContent = goal.goalName || `Goal ${goal.goalId}`;
+                row.appendChild(goalNameCell);
+
+                // Target amount
+                const targetAmountCell = document.createElement("td");
+                const targetAmount = parseFloat(goal.targetAmount);
+                targetAmountCell.textContent = `€${targetAmount.toFixed(2)}`;
+                row.appendChild(targetAmountCell);
+
+                // Current amount
+                const currentAmountCell = document.createElement("td");
+                const currentAmount = parseFloat(goal.currentAmount);
+                currentAmountCell.textContent = `€${currentAmount.toFixed(2)}`;
+                row.appendChild(currentAmountCell);
+
+                // Deadline
+                const deadlineCell = document.createElement("td");
+                const formattedDeadline = new Date(goal.deadline).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+                deadlineCell.textContent = formattedDeadline;
+                row.appendChild(deadlineCell);
+
+                // Status
+                const statusCell = document.createElement("td");
+                const statusMapping = {
+                    IN_PROGRESS: "In Progress",
+                    ACHIEVED: "Achieved"
+                };
+                statusCell.textContent = statusMapping[goal.status] || "Unknown";
+                row.appendChild(statusCell);
+
+                // Append row to the table
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching goals:", error);
+        });
+});
+
+//goal charts 
+document.addEventListener("DOMContentLoaded", function () {
+    const apiUrl = "http://localhost:8080/api/goals/my-goals";
+    const ctx = document.getElementById("goalsProgressChart").getContext("2d");
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(goals => {
+            // Prepare data for the chart
+            const goalNames = goals.map(goal => goal.goalName || `Goal ${goal.goalId}`);
+            const currentAmounts = goals.map(goal => parseFloat(goal.currentAmount) || 0);
+            const targetAmounts = goals.map(goal => parseFloat(goal.targetAmount) || 0);
+
+            // Create the chart
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: goalNames, // Goal names as labels
+                    datasets: [
+                        {
+                            label: 'Current Amount (€)',
+                            data: currentAmounts,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)', // Light blue
+                            borderColor: 'rgba(75, 192, 192, 1)', // Darker blue
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Target Amount (€)',
+                            data: targetAmounts,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Light red
+                            borderColor: 'rgba(255, 99, 132, 1)', // Darker red
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (tooltipItem) => {
+                                    return `€${tooltipItem.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Goals'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (€)'
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error("Error fetching goals:", error));
+});

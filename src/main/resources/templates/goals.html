@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Charts - SB Admin</title>
+        <title>Pennywise - Goals</title>
         <link href="/css/styles.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     </head>
@@ -109,48 +109,105 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Charts</h1>
+                        <h1 class="mt-4">Goals</h1>
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Charts</li>
+                            <li class="breadcrumb-item active">Goals</li>
                         </ol>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                Chart.js is a third party plugin that is used to generate the charts in this template. The charts below have been customized - for further customization options, please visit the official
-                                <a target="_blank" href="https://www.chartjs.org/docs/latest/">Chart.js documentation</a>
-                                .
-                            </div>
+                      
+                        <!-- Goal Table -->
+                        <div class="container mt-5">
+                            <h3>My Goals</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Goal Name</th>
+                                        <th scope="col">Target Amount</th>
+                                        <th scope="col">Current Amount</th>
+                                        <th scope="col">Deadline</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="goalTableBody">
+                                    <!-- Table rows will be populated here -->
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-area me-1"></i>
-                                Area Chart Example
-                            </div>
-                            <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
-                            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+                        <!-- Goal Chart -->
+                        <div class="container mt-5">
+                            <canvas id="goalsProgressChart" width="400" height="200"></canvas>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar me-1"></i>
-                                        Bar Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                        <!-- Create Budget -->
+                        <h3 class="mt-4">Create a New Goal</h3>
+                        <form id="createGoalForm">
+                            <div class="form-group">
+                                <label for="createGoalName">Goal Name</label>
+                                <input type="text" id="createGoalName" name="createGoalName" class="form-control" required>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-pie me-1"></i>
-                                        Pie Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                            <div class="form-group">
+                                <label for="createTargetAmount">Target Amount</label>
+                                <input type="number" id="createTargetAmount" name="createTargetAmount" class="form-control" placeholder="Enter target amount" required>
                             </div>
-                        </div>
+                            <div class="form-group">
+                                <label for="createCurrentAmount">Current Amount</label>
+                                <input type="number" id="createCurrentAmount" name="createCurrentAmount" class="form-control" placeholder="Enter target amount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="createDeadline">Deadline</label>
+                                <input type="date" id="createDeadline" name="createDeadline" class="form-control" required>
+                            </div>
+                            <div id="errorMessageCreateGoal" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Create Goal</button>
+                        </form>
+                        <!-- Update a Budget -->
+                        <h3 class="mt-4">Update an Existing Goal</h3>
+                        <form id="updateGoalForm">
+                            <div class="form-group">
+                                <label for="goalSelect">Select Goal</label>
+                                <select id="goalSelect" name="goalId" class="form-control" required>
+                                    <!-- Budgets will be dynamically populated -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateGoalName">New Goal Name</label>
+                                <input type="text" id="updateGoalName" name="updateGoalName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateGoalTargetAmount">New Goal Target Amount</label>
+                                <input type="number" id="updateGoalTargetAmount" name="updateGoalTargetAmount" class="form-control" placeholder="Enter new target amount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateGoalCurrentAmount">New Goal Current Amount</label>
+                                <input type="number" id="updateGoalCurrentAmount" name="updateGoalCurrentAmount" class="form-control" placeholder="Enter new current amount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateDeadline">New Deadline</label>
+                                <input type="date" id="updateDeadline" name="updateDeadline" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Update Status</label>
+                                <select id="status" name="status" class="form-control" required>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="ACHIEVED">Achieved</option>
+                                </select>
+                            </div>
+                            
+                            <div id="errorMessageUpdateGoal" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Update Goal</button>
+                        </form>
+                        <!-- Delete a Goal -->
+                        <h3 class="mt-4">Delete a Goal</h3>
+                        <form id="deleteGoalForm">
+                            <div class="form-group">
+                                <label for="goalSelectDelete">Select Goal</label>
+                                <select id="goalSelectDelete" name="goalId" class="form-control" required>
+                                    <!-- Budgets will be dynamically populated -->
+                                </select>
+                            </div>
+                            <div id="errorMessageDeleteGoal" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Delete Goal</button>
+                        </form> 
+                       
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">

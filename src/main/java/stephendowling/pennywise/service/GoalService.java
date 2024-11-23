@@ -97,11 +97,15 @@ public class GoalService extends BaseService {
                 .map(existingGoal -> {
                     // Ensure the authenticated user is the one who owns the category
                     if (!existingGoal.getUser().getUserId().equals(authenticatedUserId)) {
-                        throw new UnauthorisedAccessException("You can only update your own categories");
+                        throw new UnauthorisedAccessException("You can only update your own goals");
                     }
 
                     // Update the goal fields
                     existingGoal.setName(goal.getName());
+                    existingGoal.setTargetAmount(goal.getTargetAmount());
+                    existingGoal.setCurrentAmount(goal.getCurrentAmount());
+                    existingGoal.setDeadline(goal.getDeadline());
+                    existingGoal.setStatus(goal.getStatus());
 
                     // Ensure user is still associated with the authenticated user (for consistency)
                     existingGoal.setUser(existingGoal.getUser());  // No need to update the user, it's already the authenticated user
@@ -137,12 +141,14 @@ public class GoalService extends BaseService {
         // Map User to UserSummary DTO (avoiding full User details like password)
         UserSummary userSummary = new UserSummary(user.getUserId(), user.getUsername());
         
-        // Create and return the BudgetResponse DTO, including the UserSummary
+        // Create and return the GoalResponse DTO, including the UserSummary
         return new GoalResponse(
                 goal.getGoalId(),
                 goal.getName(),
                 goal.getTargetAmount(),
+                goal.getCurrentAmount(),
                 goal.getDeadline(),
+                goal.getStatus(),
                 userSummary // Only user ID and username will be included, no password
         );
     }

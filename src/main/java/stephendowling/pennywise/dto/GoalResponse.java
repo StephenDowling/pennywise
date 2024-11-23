@@ -3,23 +3,29 @@ package stephendowling.pennywise.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import stephendowling.pennywise.model.enums.GoalStatus;
+
 public class GoalResponse {
     
     private Integer goalId;
     private String goalName;
     private BigDecimal targetAmount;
+    private BigDecimal currentAmount;
     private LocalDate deadline;
+    private GoalStatus status;
     private UserSummary user;
 
 
     public GoalResponse() {
     }
 
-    public GoalResponse(Integer goalId, String goalName, BigDecimal targetAmount, LocalDate deadline, UserSummary user) {
+    public GoalResponse(Integer goalId, String goalName, BigDecimal targetAmount, BigDecimal currentAmount, LocalDate deadline, GoalStatus status, UserSummary user) {
         this.goalId = goalId;
         this.goalName = goalName;
         this.targetAmount = targetAmount;
+        this.currentAmount=currentAmount;
         this.deadline = deadline;
+        this.status = status;
         this.user = user;
     }
 
@@ -47,6 +53,14 @@ public class GoalResponse {
         this.targetAmount = targetAmount;
     }
 
+    public BigDecimal getCurrentAmount() {
+        return this.currentAmount;
+    }
+
+    public void setCurrentAmount(BigDecimal currentAmount) {
+        this.currentAmount = currentAmount;
+    }
+
     public LocalDate getDeadline() {
         return this.deadline;
     }
@@ -61,6 +75,14 @@ public class GoalResponse {
 
     public void setUser(UserSummary user) {
         this.user = user;
+    }
+
+    public GoalStatus getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(GoalStatus status) {
+        this.status = status;
     }
 
 
