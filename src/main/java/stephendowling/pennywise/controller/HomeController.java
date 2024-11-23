@@ -29,6 +29,16 @@ public class HomeController {
         return "password"; // Return the name of the HTML file (register.html)
     }
 
+    @GetMapping("/update")
+    public String update(){
+        return "update";
+    }
+
+    @GetMapping("/delete")
+    public String delete(){
+        return "delete";
+    }
+
     @GetMapping("/charts")
     public String charts(){
         return "charts";
@@ -39,7 +49,6 @@ public class HomeController {
         return "tables";
     }
 
-
     @GetMapping("/transactions")
     public String transactions(){
         return "transactions";
@@ -49,7 +58,6 @@ public class HomeController {
     public String categories(){
         return "categories";
     }
-
 
     @GetMapping("/goals")
     public String goals(){

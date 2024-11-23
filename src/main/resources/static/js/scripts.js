@@ -7,6 +7,7 @@
 // Scripts
 // 
 
+//navbar 
 window.addEventListener('DOMContentLoaded', event => {
 
     // Toggle the side navigation
@@ -22,6 +23,7 @@ window.addEventListener('DOMContentLoaded', event => {
 
 });
 
+/* USERS */
 //register a new user 
 document.addEventListener("DOMContentLoaded", function () {
     const registerForm = document.querySelector("#registerForm");
@@ -63,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(data => {
             alert("User registered successfully!");
+            window.location.href = "http://localhost:8080/login";
         })
         .catch(error => {
             alert("Error during registration: " + error.message);
@@ -70,7 +73,186 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+//update user details 
+document.addEventListener("DOMContentLoaded", function () {
+    const updateUserForm = document.querySelector("#updateUserForm");
 
+    // Handle form submission for updating user details
+    updateUserForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Fetch current user details when the user clicks the update button
+        fetch("http://localhost:8080/api/users/me", {
+            method: "GET",
+            credentials: "include", // Ensures cookies are sent
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch user details");
+            }
+            return response.json();
+        })
+        .then(user => {
+            console.log("Current User:", user);
+            // Store user ID for future use
+            localStorage.setItem("userId", user.userId);
+
+            // Now update the user details
+            const username = document.querySelector("#updateUsername").value;
+            const email = document.querySelector("#updateEmail").value;
+            const password = document.querySelector("#updatePassword").value;
+            const passwordConfirm = document.querySelector("#updatePasswordConfirm").value;
+
+            if (password !== passwordConfirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Retrieve user ID from localStorage
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                alert("User ID not found. Please log in again.");
+                return;
+            }
+
+            const updatedUser = {
+                username,
+                email,
+                password
+            };
+
+            // Send the updated user data to the server
+            fetch(`http://localhost:8080/api/users/${userId}`, {
+                method: "PUT",
+                credentials: "include", // Ensures cookies are sent
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedUser)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("User updated successfully!");
+                console.log("Updated User:", data);
+            })
+            .catch(error => {
+                console.error("Error updating user:", error);
+                alert("Failed to update user details: " + error.message);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching current user:", error);
+            alert("Unable to load user details. Please log in again.");
+        });
+    });
+});
+
+//delete a user 
+document.addEventListener("DOMContentLoaded", function () {
+    const deleteForm = document.querySelector("#deleteAccountForm");
+
+    // Handle form submission for deleting user account
+    deleteForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const username = document.querySelector("#deleteUsername").value;
+        const password = document.querySelector("#deletePassword").value;
+
+        // Validate fields
+        if (!username || !password) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        // Fetch current user details when the delete form is submitted
+        fetch("http://localhost:8080/api/users/me", {
+            method: "GET",
+            credentials: "include",  // Ensures cookies are sent with the request
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Unable to fetch user details");
+            }
+            return response.json();  // Extract the user details
+        })
+        .then(user => {
+            console.log("Current User:", user);
+
+            // Check if user.userId exists in the response
+            if (!user.userId) {
+                alert("User ID not found. Please log in again.");
+                return;
+            }
+
+            // Store the userId in localStorage for future use
+            localStorage.setItem("userId", user.userId);
+
+            // Validate that the username entered matches the current user's username
+            if (username !== user.username) {
+                alert("Username does not match your registered username.");
+                return;
+            }
+
+            // Retrieve the userId from localStorage
+            const userId = localStorage.getItem("userId");
+
+            if (!userId || userId === "undefined") {
+                alert("User ID not found. Please log in again.");
+                return;
+            }
+
+            const userToDelete = {
+                username,
+                password,
+                userId: userId  // Use the userId retrieved from localStorage
+            };
+
+            // Send the DELETE request to the backend with the userId
+            fetch(`http://localhost:8080/api/users/${userId}`, {
+                method: "DELETE",  // Use DELETE request for account deletion
+                headers: {
+                    "Content-Type": "application/json"  // Set the content type as JSON
+                },
+                body: JSON.stringify(userToDelete)  // Send the username, password, and userId as JSON
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Your account has been deleted successfully.");
+                    window.location.href = "/login";  // Redirect to login page after deletion
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text);  // Handle the error if deletion fails
+                    });
+                }
+            })
+            .catch(error => {
+                alert("Error deleting your account: " + error.message);
+            });
+        })
+        .catch(error => {
+            alert("Error fetching user details: " + error.message);
+        });
+    });
+});
+
+
+
+
+
+/* CATEGORIES */
 //create category
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("#createCategoryForm");

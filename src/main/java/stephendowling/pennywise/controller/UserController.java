@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import stephendowling.pennywise.service.UserService;
 import stephendowling.pennywise.dto.RegistrationRequest;
 import stephendowling.pennywise.dto.RegistrationResponse;
 import stephendowling.pennywise.dto.UserSummary;
+import stephendowling.pennywise.exceptions.UnauthorisedAccessException;
 import stephendowling.pennywise.exceptions.UserNotFoundException;
 import stephendowling.pennywise.model.User;
 
@@ -68,7 +70,37 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    //delete a user by ID
+    @DeleteMapping("/deleteById/{id}")
+    public ResponseEntity<String> deleteUserById(@PathVariable Integer id) {
+        try {
+            userService.deleteById(id);  // Delegate the delete action to the service
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // Return 204 No Content if deletion is successful
+        } catch (UnauthorisedAccessException e) {
+            // If the user is not an admin
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized access: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            // If the user with the given ID is not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found: " + e.getMessage());
+        } catch (Exception e) {
+            // Catch any other unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting user: " + e.getMessage());
+        }
+    }
+
+
     /* METHODS FOR ALL USERS */
+    //get current User
+    @GetMapping("/me") //http://localhost:8080/api/users/me
+    public ResponseEntity<UserSummary> getCurrentUser() {
+        // Delegate the logic to the service
+        UserSummary userSummary = userService.getCurrentUser();
+        if (userSummary == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        return ResponseEntity.ok(userSummary);
+    }
+
     //creating a new User
     @ResponseStatus(HttpStatus.CREATED) //sends a 201 back saying the User was created 
     @PostMapping("") //http://localhost:8080/api/users
