@@ -248,8 +248,176 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+/* TRANSACTIONS */
 
+//transaction charts 
+//Expenses chart
+document.addEventListener("DOMContentLoaded", function initialiseExpensesChart() {
+    const ctx = document.getElementById('expensesChart').getContext('2d');
 
+    // Fetch the transactions data
+    fetch('/api/transactions/my-transactions')
+        .then(response => response.json())
+        .then(data => {
+            // Filter data to include only transactions of type 'EXPENSE'
+            const expenseData = data.filter(transaction => transaction.type === 'EXPENSE');
+
+            // Sort filtered data by date in ascending order (oldest first)
+            expenseData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Process data into labels and values for the chart
+            const labels = expenseData.map(transaction => new Date(transaction.date).toLocaleDateString());
+            const values = expenseData.map(transaction => transaction.amount); // Replace with actual amount property
+
+            // Create the chart
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Expenses',
+                        data: values,
+                        borderColor: 'rgba(255, 99, 132, 1)', // Red for expenses
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Light red background
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amount'
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching transactions:', error));
+});
+
+//Income chart
+document.addEventListener("DOMContentLoaded", function initialiseIncomeChart() {
+    const ctx = document.getElementById('incomeChart').getContext('2d');
+
+    // Fetch the transactions data
+    fetch('/api/transactions/my-transactions')
+        .then(response => response.json())
+        .then(data => {
+            // Filter data to include only transactions of type 'EXPENSE'
+            const incomeData = data.filter(transaction => transaction.type === 'INCOME');
+
+            // Sort filtered data by date in ascending order (oldest first)
+            incomeData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Process data into labels and values for the chart
+            const labels = incomeData.map(transaction => new Date(transaction.date).toLocaleDateString());
+            const values = incomeData.map(transaction => transaction.amount); // Replace with actual amount property
+
+            // Create the chart
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Income',
+                        data: values,
+                        borderColor: 'rgba(54, 162, 235, 1)', // Blue for income
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue background                        
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amount'
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching transactions:', error));
+});
+
+//Recent Transactions table
+document.addEventListener("DOMContentLoaded", function () {
+    // Fetch the transactions data
+    fetch('/api/transactions/my-transactions')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector("#transactionsTable tbody");
+
+            // Sort data by date in descending order (newest first)
+            data = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Clear any existing rows (if re-rendering is needed)
+            tableBody.innerHTML = "";
+
+            // Populate the table
+            data.forEach(transaction => {
+                const row = document.createElement("tr");
+
+                // Create cells for the row
+                const dateCell = document.createElement("td");
+                dateCell.textContent = new Date(transaction.date).toLocaleDateString(); // Format date
+
+                const categoryCell = document.createElement("td");
+                categoryCell.textContent = transaction.categoryName.charAt(0).toUpperCase() + transaction.categoryName.slice(1).toLowerCase();
+
+                const typeCell = document.createElement("td");
+                typeCell.textContent = transaction.type;
+
+                const amountCell = document.createElement("td");
+                amountCell.textContent = `€${transaction.amount.toFixed(2)}`; // Format amount with 2 decimals
+
+                const descriptionCell = document.createElement("td");
+                descriptionCell.textContent = transaction.description || "No Description";
+
+                typeCell.style.color = transaction.type === "INCOME" ? "green" : "red";
+
+                // Append cells to the row
+                row.appendChild(dateCell);
+                row.appendChild(categoryCell);
+                row.appendChild(typeCell);
+                row.appendChild(amountCell);
+                row.appendChild(descriptionCell);
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching transactions:', error));
+});
 
 
 /* CATEGORIES */
@@ -427,7 +595,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-//get all categories 
+//get all categories for table 
 fetch("http://localhost:8080/api/categories/my-categories")
     .then(response => response.json())
     .then(categories => {
@@ -440,6 +608,233 @@ fetch("http://localhost:8080/api/categories/my-categories")
         });
     })
     .catch(error => console.error("Error fetching categories:", error));
+
+
+/* BUDGETS */
+//create a budget 
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#createBudgetForm");
+    const errorMessageElement = document.querySelector("#errorMessage");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const budgetData = {
+            name: formData.get("budgetName"),
+            amount: formData.get("budgetAmount"),
+            startDate: formData.get("budgetStartDate"),
+            endDate: formData.get("budgetEndDate")
+        };
+
+        fetch("http://localhost:8080/api/budgets", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(budgetData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Clear the error message if submission is successful
+            errorMessageElement.textContent = "";
+            alert("Budget created successfully!");
+            form.reset();
+        })
+        .catch(error => {
+            // Display the error message in the HTML
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//updating a budget 
+document.addEventListener("DOMContentLoaded", function () {
+    const budgetSelect = document.querySelector("#budgetSelect");
+    const updateForm = document.querySelector("#updateBudgetForm");
+    const errorMessageElement = document.querySelector("#errorMessageUpdateBudget");
+
+    // Fetch existing budget and populate the dropdown
+    fetch("http://localhost:8080/api/budgets/my-budgets")
+        .then(response => response.json())
+        .then(budgets => {
+            budgets.forEach(budget => {
+                if (!budget.budgetId) {
+                    console.warn("Budget ID is missing for:", budget);
+                    return; // Skip budgets with missing IDs
+                }
+                const option = document.createElement("option");
+                option.value = budget.budgetId; // Use budgetId from API response
+                option.textContent = budget.name; // Display name
+                budgetSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching budgets:", error));
+
+    // Handle form submission
+    updateForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const budgetId = budgetSelect.value; // Selected category ID
+        const newBudgetName = document.querySelector("#updateBudgetName").value.trim();
+        const newBudgetAmount = document.querySelector("#updateBudgetAmount").value.trim();
+        const newBudgetStartDate = document.querySelector("#updateBudgetStartDate").value.trim();
+        const newBudgetEndDate = document.querySelector("#updateBudgetEndDate").value.trim();
+
+        // Validate inputs
+        if (!budgetId || budgetId === "undefined") {
+            errorMessageElement.textContent = "Please select a valid budget.";
+            return;
+        }
+        if (!newBudgetName) {
+            errorMessageElement.textContent = "Budget name cannot be empty.";
+            return;
+        }
+
+        // Make the PUT request
+        fetch(`http://localhost:8080/api/budgets/${budgetId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: newBudgetName, amount: newBudgetAmount, startDate: newBudgetStartDate, endDate: newBudgetEndDate }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Budget updated successfully!");
+            errorMessageElement.textContent = "";
+            updateForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//deleting a budget 
+document.addEventListener("DOMContentLoaded", function () {
+    const budgetSelect = document.querySelector("#budgetSelectDelete");
+    const deleteForm = document.querySelector("#deleteBudgetForm");
+    const errorMessageElement = document.querySelector("#errorMessageDeleteBudget");
+
+    // Fetch existing categories and populate the dropdown
+    fetch("http://localhost:8080/api/budgets/my-budgets")
+    .then(response => response.json())
+    .then(budgets => {
+        budgets.forEach(budget => {
+            if (!budget.budgetId) {
+                console.warn("Budget ID is missing for:", budget);
+                return; // Skip budgets with missing IDs
+            }
+            const option = document.createElement("option");
+            option.value = budget.budgetId; // Use budgetId from API response
+            option.textContent = budget.name; // Display name
+            budgetSelect.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching budgets:", error));
+
+    // Handle form submission
+    deleteForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const budgetId = budgetSelect.value; // Selected budget ID
+
+        // Validate inputs
+        if (!budgetId) {
+            errorMessageElement.textContent = "Please select a valid budget.";
+            return;
+        }
+        
+
+        // Make the DELETE request
+        fetch(`http://localhost:8080/api/budgets/${budgetId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || "An unexpected error occurred.");
+                });
+            }
+            // Check if response is empty
+            if (response.status === 204) {
+                return; // No content returned, so we don't need to process further
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Budget deleted successfully!");
+            errorMessageElement.textContent = "";
+            deleteForm.reset();
+        })
+        .catch(error => {
+            errorMessageElement.textContent = error.message;
+        });
+    });
+});
+
+//budget charts 
+document.addEventListener("DOMContentLoaded", function () {
+    const apiUrl = "http://localhost:8080/api/budgets/my-budgets";
+    const tableBody = document.getElementById("budgetTableBody");
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(budgets => {
+            //sort budgets by date first 
+            budgets.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            // Populate the table with budget data
+            budgets.forEach(budget => {
+                const row = document.createElement("tr");
+
+                const budgetNameCell = document.createElement("td");
+                budgetNameCell.textContent = budget.name || `Budget ${budget.budgetId}`;
+                row.appendChild(budgetNameCell);
+
+                const amountCell = document.createElement("td");
+                amountCell.textContent = `€${budget.amount.toFixed(2)}`;
+                row.appendChild(amountCell);
+
+                const startDateCell = document.createElement("td");
+                const formattedStartDate = new Date(budget.startDate).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+                startDateCell.textContent = formattedStartDate;
+                row.appendChild(startDateCell);
+
+                const endDateCell = document.createElement("td");
+                const formattedEndDate = new Date(budget.endDate).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+                endDateCell.textContent = formattedEndDate;
+                row.appendChild(endDateCell);
+
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching budgets:", error);
+        });
+});
+
+
+
+
+
 
 
 

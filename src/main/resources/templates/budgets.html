@@ -6,9 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Charts - SB Admin</title>
+        <title>Pennywise - Budgets</title>
         <link href="/css/styles.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -109,48 +110,91 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Charts</h1>
+                        <h1 class="mt-4">Budgets</h1>
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Charts</li>
+                            <li class="breadcrumb-item active">Budgets</li>
                         </ol>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                Chart.js is a third party plugin that is used to generate the charts in this template. The charts below have been customized - for further customization options, please visit the official
-                                <a target="_blank" href="https://www.chartjs.org/docs/latest/">Chart.js documentation</a>
-                                .
-                            </div>
+                        <!-- Budgets Charts -->
+                        <div class="container mt-5">
+                            <h3>My Budgets</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Budget Name</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Start Date</th>
+                                        <th scope="col">End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="budgetTableBody">
+                                    <!-- Table rows will be populated here -->
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-area me-1"></i>
-                                Area Chart Example
+                        <!-- Create Budget -->
+                        <h3 class="mt-4">Create a New Budget</h3>
+                        <form id="createBudgetForm">
+                            <div class="form-group">
+                                <label for="budgetName">Budget Name</label>
+                                <input type="text" id="budgetName" name="budgetName" class="form-control" required>
                             </div>
-                            <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
-                            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar me-1"></i>
-                                        Bar Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                            <div class="form-group">
+                                <label for="budgetAmount">Budget Amount</label>
+                                <input type="number" id="budgetAmount" name="budgetAmount" class="form-control" placeholder="Enter budget amount" required>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-pie me-1"></i>
-                                        Pie Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="budgetStartDate" name="budgetStartDate" class="form-control" required>
                             </div>
-                        </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="budgetEndDate" name="budgetEndDate" class="form-control" required>
+                            </div>
+                            <div id="errorMessage" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Create Budget</button>
+                        </form>
+                        <!-- Update a Budget -->
+                        <h3 class="mt-4">Update an Existing Budget</h3>
+                        <form id="updateBudgetForm">
+                            <div class="form-group">
+                                <label for="budgetSelect">Select Budget</label>
+                                <select id="budgetSelect" name="budgetId" class="form-control" required>
+                                    <!-- Budgets will be dynamically populated -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBudgetName">New Budget Name</label>
+                                <input type="text" id="updateBudgetName" name="updateBudgetName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBudgetAmount">New Budget Amount</label>
+                                <input type="number" id="updateBudgetAmount" name="updateBudgetAmount" class="form-control" placeholder="Enter budget amount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBudgetStartDate">New Start Date</label>
+                                <input type="date" id="updateBudgetStartDate" name="updateBudgetStartDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBudgetEndDate">New End Date</label>
+                                <input type="date" id="updateBudgetEndDate" name="updateBudgetEndDate" class="form-control" required>
+                            </div>
+                            <div id="errorMessageUpdateBudget" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Update Budget</button>
+                        </form>
+                        <!-- Delete a Budget -->
+                        <h3 class="mt-4">Delete a Budget</h3>
+                        <form id="deleteBudgetForm">
+                            <div class="form-group">
+                                <label for="budgetSelectDelete">Select Budget</label>
+                                <select id="budgetSelectDelete" name="budgetId" class="form-control" required>
+                                    <!-- Budgets will be dynamically populated -->
+                                </select>
+                            </div>
+                            <div id="errorMessageDeleteBudget" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Delete Budget</button>
+                        </form> 
+                        
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">

@@ -11,6 +11,15 @@ public class BudgetResponse {
     private BigDecimal amount;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String name;
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     private UserSummary user;
 
     // Constructor, getters, setters
@@ -56,11 +65,13 @@ public class BudgetResponse {
     }
 
    
-    public BudgetResponse(Integer budgetId, BigDecimal amount, LocalDate startDate, LocalDate endDate, UserSummary user) {
+    public BudgetResponse(Integer budgetId, BigDecimal amount, LocalDate startDate, LocalDate endDate, String name, UserSummary user) {
         this.budgetId = budgetId;
         this.amount = amount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.name = name;
         this.user = user;
+     
     }
 }

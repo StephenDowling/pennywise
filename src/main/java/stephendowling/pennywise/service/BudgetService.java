@@ -104,6 +104,7 @@ public class BudgetService extends BaseService{
                     existingBudget.setAmount(budget.getAmount());
                     existingBudget.setStartDate(budget.getStartDate());
                     existingBudget.setEndDate(budget.getEndDate());
+                    existingBudget.setName(budget.getName());
 
                     // Ensure user is still associated with the authenticated user (for consistency)
                     existingBudget.setUser(existingBudget.getUser());  // No need to update the user, it's already the authenticated user
@@ -145,7 +146,9 @@ public class BudgetService extends BaseService{
                 budget.getAmount(),
                 budget.getStartDate(),
                 budget.getEndDate(),
-                userSummary // Only user ID and username will be included, no password
+                budget.getName(),
+                userSummary // Only user ID and username will be included, no password,
+                
         );
     }
 }

@@ -28,14 +28,20 @@ public class Budget {
     @NotNull
     private LocalDate endDate;
 
+    @NotNull
+    @Column(length = 100, nullable = true)
+    private String name; // Optional name for the budget
+   
+
     // Constructors
     public Budget() {} //empty constructor good practice 
 
-    public Budget(User user, BigDecimal amount, LocalDate startDate, LocalDate endDate) {
+    public Budget(User user, BigDecimal amount, LocalDate startDate, LocalDate endDate, String name) {
         this.user = user;
         this.amount = amount;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.name = name;
     }
 
     // Getters and setters
@@ -77,5 +83,13 @@ public class Budget {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
