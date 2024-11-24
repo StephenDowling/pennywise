@@ -67,4 +67,14 @@ public class TransactionController {
         transactionService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    // get transaction by transaction ID
+    @GetMapping("/{transactionId}") // Make sure this annotation matches your intent
+    public ResponseEntity<TransactionResponse> getTransactionById(@PathVariable Integer transactionId) {
+        TransactionResponse transaction = transactionService.findById(transactionId);
+        if (transaction == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(transaction);
+    }
 }

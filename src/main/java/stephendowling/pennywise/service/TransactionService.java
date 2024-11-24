@@ -136,7 +136,7 @@ public class TransactionService extends BaseService {
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
     }
     
-    //delete a budget 
+    //delete a transaction 
     public void delete(Integer transactionId){
         Integer authenticatedUserId = getAuthenticatedUserId();
 
@@ -173,5 +173,23 @@ public class TransactionService extends BaseService {
 
         return response;
     }
+
+    public TransactionResponse findById(Integer transactionId) {
+        // Retrieve the authenticated user's ID
+        Integer authenticatedUserId = getAuthenticatedUserId();
+    
+        // Fetch the transaction from the repository
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new TransactionNotFoundException());
+    
+        // Verify that the transaction belongs to the authenticated user
+        if (!transaction.getUser().getUserId().equals(authenticatedUserId)) {
+            throw new UnauthorisedAccessException("Unauthorised access attempt for transaction ID " + transactionId);
+        }
+    
+        // Return the transaction if validation passes
+        return mapToTransactionResponse(transaction);
+    }
+    
 
 }

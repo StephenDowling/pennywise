@@ -422,8 +422,35 @@ document.addEventListener("DOMContentLoaded", function () {
 //create transaction 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("#createTransactionForm");
+    const categoryDropdown = document.querySelector("#createTransactionCategory");
     const errorMessageElement = document.querySelector("#errorMessageCreateTransaction");
 
+    // Fetch categories and populate the dropdown
+    fetch("http://localhost:8080/api/categories/my-categories")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch categories.");
+            }
+            return response.json();
+        })
+        .then(categories => {
+            // Clear existing options
+            categoryDropdown.innerHTML = "";
+
+            // Populate dropdown with fetched categories
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.categoryId; // Use `categoryId` for the value
+                option.textContent = category.name; // Use `name` for the display text
+                categoryDropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching categories:", error);
+            categoryDropdown.innerHTML = `<option value="" disabled>Error loading categories</option>`;
+        });
+
+    // Form submission logic
     form.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -435,9 +462,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const transactionData = {
             category: {
-                categoryId: parseInt(formData.get("createTransactionCategory"), 10),
+                categoryId: parseInt(formData.get("createTransactionCategory"), 10), // Ensure categoryId is an integer
             },
-            amount: parseFloat(formData.get("createTransactionAmount")).toFixed(2),
+            amount: parseFloat(formData.get("createTransactionAmount")).toFixed(2), // Format to two decimal places
             date: formData.get("createTransactionDate"),
             description: description || "", // Default to empty string if null
             type: formData.get("createTransactionType"),
@@ -470,6 +497,229 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 });
+
+//update transaction
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.querySelector("#updateTransactionsTable tbody");
+    const form = document.querySelector("#updateTransactionForm");
+    const categoryDropdown = document.querySelector("#updateTransactionCategory");
+    const errorMessageElement = document.querySelector("#errorMessageUpdateTransaction");
+
+    // Fetch transactions and populate the table
+    fetch("http://localhost:8080/api/transactions/my-transactions")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch transactions.");
+            }
+            return response.json();
+        })
+        .then(transactions => {
+            tableBody.innerHTML = ""; // Clear the table body
+
+            transactions.forEach(transaction => {
+                const row = document.createElement("tr");
+
+                // Create table cells
+                row.innerHTML = `
+                    <td>${transaction.categoryName}</td>
+                    <td>€${transaction.amount.toFixed(2)}</td>
+                    <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                    <td>${transaction.description || "No Description"}</td>
+                    <td>${transaction.type}</td>
+                    <td><button class="btn btn-primary btn-sm" data-id="${transaction.transactionId}">Update</button></td>
+                `;
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
+
+            // Add event listeners to the "Select" buttons
+            document.querySelectorAll("button[data-id]").forEach(button => {
+                button.addEventListener("click", function () {
+                    const transactionId = this.getAttribute("data-id");
+                    console.log("Selected Transaction ID:", transactionId); // Debugging step
+                
+                    fetch(`http://localhost:8080/api/transactions/${transactionId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Failed to fetch transaction details.");
+                            }
+                            return response.json();
+                        })
+                        .then(transaction => {
+                            console.log("Fetched Transaction Data:", transaction); // Debugging step
+                
+                            // Prefill the form fields
+                            form.querySelector("#updateTransactionCategory").value = transaction.categoryId;
+                            form.querySelector("#updateTransactionAmount").value = transaction.amount.toFixed(2);
+                            form.querySelector("#updateTransactionDate").value = transaction.date;
+                            form.querySelector("#updateTransactionDescription").value = transaction.description || "";
+                            form.querySelector("#updateTransactionType").value = transaction.type;
+                
+                            // Store the transaction ID for the update
+                            form.setAttribute("data-transaction-id", transactionId);
+                            console.log("Form data-transaction-id set to:", transactionId); // Debugging step
+                        })
+                        .catch(error => {
+                            console.error("Error fetching transaction details:", error);
+                        });
+                });
+                
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching transactions:", error);
+        });
+
+    // Fetch categories and populate the dropdown
+    fetch("http://localhost:8080/api/categories/my-categories")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch categories.");
+            }
+            return response.json();
+        })
+        .then(categories => {
+            categoryDropdown.innerHTML = "";
+
+            categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.categoryId;
+                option.textContent = category.name;
+                categoryDropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching categories:", error);
+            categoryDropdown.innerHTML = `<option value="" disabled>Error loading categories</option>`;
+        });
+
+    // Handle form submission for updates
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const transactionId = form.getAttribute("data-transaction-id");
+
+        if (!transactionId) {
+            errorMessageElement.textContent = "No transaction selected for update.";
+            return;
+        }
+
+        const updatedTransactionData = {
+            category: {
+                categoryId: parseInt(form.querySelector("#updateTransactionCategory").value, 10),
+            },
+            amount: parseFloat(form.querySelector("#updateTransactionAmount").value).toFixed(2),
+            date: form.querySelector("#updateTransactionDate").value,
+            description: form.querySelector("#updateTransactionDescription").value || "",
+            type: form.querySelector("#updateTransactionType").value,
+        };
+
+        fetch(`http://localhost:8080/api/transactions/${transactionId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedTransactionData),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || "An unexpected error occurred.");
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                errorMessageElement.textContent = "";
+                alert("Transaction updated successfully!");
+                form.reset();
+                form.removeAttribute("data-transaction-id");
+            })
+            .catch(error => {
+                errorMessageElement.textContent = error.message;
+                console.error("Error updating transaction:", error);
+            });
+    });
+});
+
+//delete transaction
+document.addEventListener("DOMContentLoaded", function () {
+    const tableBody = document.querySelector("#deleteTransactionsTable tbody");
+    const form = document.querySelector("#deleteTransactionForm");
+    const errorMessageElement = document.querySelector("#errorMessageDeleteTransaction");
+
+    let selectedTransactionId = null; // Store the selected transaction ID for deletion
+
+    // Fetch and populate transactions
+    fetch("http://localhost:8080/api/transactions/my-transactions")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch transactions.");
+            }
+            return response.json();
+        })
+        .then(transactions => {
+            tableBody.innerHTML = ""; // Clear any existing rows
+
+            transactions.forEach(transaction => {
+                const row = document.createElement("tr");
+
+                // Populate the table row
+                row.innerHTML = `
+                    <td>${transaction.categoryName}</td>
+                    <td>€${transaction.amount.toFixed(2)}</td>
+                    <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                    <td>${transaction.description || "No Description"}</td>
+                    <td>${transaction.type}</td>
+                    <td><button class="btn btn-danger btn-sm" data-id="${transaction.transactionId}">Delete</button></td>
+                `;
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
+
+            // Add event listeners to the "Select" buttons
+            document.querySelectorAll("button[data-id]").forEach(button => {
+                button.addEventListener("click", function () {
+                    selectedTransactionId = this.getAttribute("data-id"); // Store the selected ID
+                });
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching transactions:", error);
+            errorMessageElement.textContent = "Failed to load transactions.";
+        });
+
+    // Handle form submission for deleting the selected transaction
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        if (!selectedTransactionId) {
+            errorMessageElement.textContent = "No transaction selected for deletion.";
+            return;
+        }
+
+        fetch(`http://localhost:8080/api/transactions/${selectedTransactionId}`, {
+            method: "DELETE",
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || "Failed to delete transaction.");
+                    });
+                }
+                alert("Transaction deleted successfully!");
+                // Refresh the table after deletion
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error deleting transaction:", error);
+                errorMessageElement.textContent = error.message;
+            });
+    });
+});
+
 
 
 

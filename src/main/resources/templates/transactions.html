@@ -120,13 +120,9 @@
                             <div class="form-group">
                                 <label for="createTransactionCategory">Transaction Category</label>
                                 <select id="createTransactionCategory" name="createTransactionCategory" class="form-control" required>
-                                    <option value="15">Spotify</option>
-                                    <option value="16">Netflix</option>
-                                    <option value="17">Subscriptions</option>
-                                    <option value="1">Rent</option>
-                                    <option value="2">Groceries</option>
-                                    <option value="14">Salary</option>
-                                </select>                                
+                                    <!-- Placeholder option to show before the categories load -->
+                                    <option value="" disabled selected>Select a category</option>
+                                </select>            
                             </div>
                             <div class="form-group">
                                 <label for="createTransactionAmount">Transaction Amount</label>
@@ -150,36 +146,76 @@
                             <div id="errorMessageCreateTransaction" class="text-danger mt-2"></div>
                             <button type="submit" class="btn btn-primary">Create Transaction</button>
                         </form>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-chart-area me-1"></i>
-                                Area Chart Example
+                        <!-- Update a Transaction -->
+                        <h3 class="mt-4">Update an Existing Transaction</h3>
+                        <form id="updateTransactionForm">
+                            <div class="form-group">
+                                <table id="updateTransactionsTable" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Type</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Transactions will be populated dynamically -->
+                                    </tbody>
+                                </table>                                
                             </div>
-                            <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
-                            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar me-1"></i>
-                                        Bar Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                            <div class="form-group">
+                                <label for="updateTransactionCategory">New Transaction Category</label>
+                                <select id="updateTransactionCategory" name="updateTransactionCategory" class="form-control" required>
+                                    <!-- Placeholder option to show before the categories load -->
+                                    <option value="" disabled selected>Select a category</option>
+                                </select>                                  
                             </div>
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-pie me-1"></i>
-                                        Pie Chart Example
-                                    </div>
-                                    <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
-                                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-                                </div>
+                            <div class="form-group">
+                                <label for="updateTransactionAmount">New Transaction Amount</label>
+                                <input type="number" id="updateTransactionAmount" name="updateTransactionAmount" class="form-control" placeholder="Enter new amount" required step="0.01">
                             </div>
-                        </div>
+                            <div class="form-group">
+                                <label for="updateTransactionDate">New Date</label>
+                                <input type="date" id="updateTransactionDate" name="updateTransactionDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateTransactionDescription">New Description</label>
+                                <input type="text" id="updateTransactionDescription" name="updateTransactionDescription" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="updateTransactionType">Income or Expense</label>
+                                <select id="updateTransactionType" name="updateTransactionType" class="form-control" required>
+                                    <option value="INCOME">Income</option>
+                                    <option value="EXPENSE">Expense</option>
+                                </select>
+                            </div>
+                            <div id="errorMessageUpdateTransaction" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Update Transaction</button>
+                        </form>
+                        <h3 class="mt-4">Delete a Transaction</h3>
+                        <form id="deleteTransactionForm">
+                            <div class="form-group">
+                                <table id="deleteTransactionsTable" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Type</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Transactions will be populated dynamically -->
+                                    </tbody>
+                                </table>                                
+                            </div>
+                            <div id="errorMessageDeleteTransaction" class="text-danger mt-2"></div>
+                        </form>
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">
