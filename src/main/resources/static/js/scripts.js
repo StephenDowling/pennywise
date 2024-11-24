@@ -419,6 +419,63 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error('Error fetching transactions:', error));
 });
 
+//create transaction 
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#createTransactionForm");
+    const errorMessageElement = document.querySelector("#errorMessageCreateTransaction");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+
+        // Debugging: Log the description field
+        const description = formData.get("createTransactionDescription");
+        console.log("Description Value:", description);
+
+        const transactionData = {
+            category: {
+                categoryId: parseInt(formData.get("createTransactionCategory"), 10),
+            },
+            amount: parseFloat(formData.get("createTransactionAmount")).toFixed(2),
+            date: formData.get("createTransactionDate"),
+            description: description || "", // Default to empty string if null
+            type: formData.get("createTransactionType"),
+        };
+
+        console.log("Transaction Data:", transactionData); // Debug full payload
+
+        fetch("http://localhost:8080/api/transactions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(transactionData),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || "An unexpected error occurred.");
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                errorMessageElement.textContent = "";
+                alert("Transaction created successfully!");
+                form.reset();
+            })
+            .catch(error => {
+                errorMessageElement.textContent = error.message;
+            });
+    });
+});
+
+
+
+
+
+
 
 /* CATEGORIES */
 //create category

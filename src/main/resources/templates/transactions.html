@@ -114,13 +114,42 @@
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Transactions</li>
                         </ol>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                Chart.js is a third party plugin that is used to generate the charts in this template. The charts below have been customized - for further customization options, please visit the official
-                                <a target="_blank" href="https://www.chartjs.org/docs/latest/">Chart.js documentation</a>
-                                .
+                        <!-- Create Transaction -->
+                        <h3 class="mt-4">Create a New Transaction</h3>
+                        <form id="createTransactionForm">
+                            <div class="form-group">
+                                <label for="createTransactionCategory">Transaction Category</label>
+                                <select id="createTransactionCategory" name="createTransactionCategory" class="form-control" required>
+                                    <option value="15">Spotify</option>
+                                    <option value="16">Netflix</option>
+                                    <option value="17">Subscriptions</option>
+                                    <option value="1">Rent</option>
+                                    <option value="2">Groceries</option>
+                                    <option value="14">Salary</option>
+                                </select>                                
                             </div>
-                        </div>
+                            <div class="form-group">
+                                <label for="createTransactionAmount">Transaction Amount</label>
+                                <input type="number" id="createTransactionAmount" name="createTransactionAmount" class="form-control" placeholder="Enter Transaction Amount" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="createTransactionDate">Date of Transaction</label>
+                                <input type="date" id="createTransactionDate" name="createTransactionDate" class="form-control" placeholder="Enter date of transaction" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="createTransactionDescription">Description</label>
+                                <input type="text" id="createTransactionDescription" name="createTransactionDescription" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="createTransactionType">Income or Expense</label>
+                                <select id="createTransactionType" name="createTransactionType" class="form-control" required>
+                                    <option value="INCOME">Income</option>
+                                    <option value="EXPENSE">Expense</option>
+                                </select>
+                            </div>
+                            <div id="errorMessageCreateTransaction" class="text-danger mt-2"></div>
+                            <button type="submit" class="btn btn-primary">Create Transaction</button>
+                        </form>
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-chart-area me-1"></i>

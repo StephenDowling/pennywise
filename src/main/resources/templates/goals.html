@@ -137,7 +137,7 @@
                         <div class="container mt-5">
                             <canvas id="goalsProgressChart" width="400" height="200"></canvas>
                         </div>
-                        <!-- Create Budget -->
+                        <!-- Create Goal -->
                         <h3 class="mt-4">Create a New Goal</h3>
                         <form id="createGoalForm">
                             <div class="form-group">
@@ -146,11 +146,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="createTargetAmount">Target Amount</label>
-                                <input type="number" id="createTargetAmount" name="createTargetAmount" class="form-control" placeholder="Enter target amount" required>
+                                <input type="number" id="createTargetAmount" name="createTargetAmount" class="form-control" placeholder="Enter target amount" required step="0.01">
                             </div>
                             <div class="form-group">
                                 <label for="createCurrentAmount">Current Amount</label>
-                                <input type="number" id="createCurrentAmount" name="createCurrentAmount" class="form-control" placeholder="Enter target amount" required>
+                                <input type="number" id="createCurrentAmount" name="createCurrentAmount" class="form-control" placeholder="Enter target amount" required step="0.01">
                             </div>
                             <div class="form-group">
                                 <label for="createDeadline">Deadline</label>
@@ -159,13 +159,13 @@
                             <div id="errorMessageCreateGoal" class="text-danger mt-2"></div>
                             <button type="submit" class="btn btn-primary">Create Goal</button>
                         </form>
-                        <!-- Update a Budget -->
+                        <!-- Update a Goal -->
                         <h3 class="mt-4">Update an Existing Goal</h3>
                         <form id="updateGoalForm">
                             <div class="form-group">
                                 <label for="goalSelect">Select Goal</label>
                                 <select id="goalSelect" name="goalId" class="form-control" required>
-                                    <!-- Budgets will be dynamically populated -->
+                                    <!-- Goals will be dynamically populated -->
                                 </select>
                             </div>
                             <div class="form-group">
@@ -174,11 +174,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="updateGoalTargetAmount">New Goal Target Amount</label>
-                                <input type="number" id="updateGoalTargetAmount" name="updateGoalTargetAmount" class="form-control" placeholder="Enter new target amount" required>
+                                <input type="number" id="updateGoalTargetAmount" name="updateGoalTargetAmount" class="form-control" placeholder="Enter new target amount" required step="0.01">
                             </div>
                             <div class="form-group">
                                 <label for="updateGoalCurrentAmount">New Goal Current Amount</label>
-                                <input type="number" id="updateGoalCurrentAmount" name="updateGoalCurrentAmount" class="form-control" placeholder="Enter new current amount" required>
+                                <input type="number" id="updateGoalCurrentAmount" name="updateGoalCurrentAmount" class="form-control" placeholder="Enter new current amount" required step="0.01">
                             </div>
                             <div class="form-group">
                                 <label for="updateDeadline">New Deadline</label>
