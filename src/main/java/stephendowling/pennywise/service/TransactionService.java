@@ -190,6 +190,5 @@ public class TransactionService extends BaseService {
         // Return the transaction if validation passes
         return mapToTransactionResponse(transaction);
     }
-    
 
 }

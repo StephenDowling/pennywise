@@ -69,6 +69,10 @@ public class HomeController {
         return "budgets";
     }
 
+    @GetMapping("/currency")
+    public String currency(){
+        return "currency";
+    }
 
     //retrieves username for use in index.html
     @GetMapping("/")

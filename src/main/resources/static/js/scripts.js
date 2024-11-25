@@ -360,7 +360,8 @@ document.addEventListener("DOMContentLoaded", function initialiseIncomeChart() {
                             title: {
                                 display: true,
                                 text: 'Amount'
-                            }
+                            },
+                            beginAtZero: true
                         }
                     }
                 }
@@ -719,13 +720,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 });
-
-
-
-
-
-
-
 
 /* CATEGORIES */
 //create category
@@ -1106,8 +1100,9 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(apiUrl)
         .then(response => response.json())
         .then(budgets => {
-            //sort budgets by date first 
+            // Sort budgets by start date
             budgets.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            
             // Populate the table with budget data
             budgets.forEach(budget => {
                 const row = document.createElement("tr");
@@ -1129,6 +1124,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 const formattedEndDate = new Date(budget.endDate).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
                 endDateCell.textContent = formattedEndDate;
                 row.appendChild(endDateCell);
+
+                // Calculate weekly spending limit
+                const weeklyLimitCell = document.createElement("td");
+                const startDate = new Date(budget.startDate);
+                const endDate = new Date(budget.endDate);
+
+                // Calculate the number of weeks
+                const millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000; // 7 days
+                const weeks = Math.max(1, Math.ceil((endDate - startDate) / millisecondsPerWeek));
+
+                // Calculate the weekly spending limit
+                const weeklyLimit = budget.amount / weeks;
+                weeklyLimitCell.textContent = `€${weeklyLimit.toFixed(2)}`;
+                row.appendChild(weeklyLimitCell);
 
                 tableBody.appendChild(row);
             });
@@ -1447,3 +1456,68 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error fetching goals:", error));
 });
+
+//external data sources 
+//currency converter 
+async function convertCurrency() {
+    const amount = document.getElementById("amount").value;
+    const baseCurrency = document.getElementById("baseCurrency").value;
+    const targetCurrency = document.getElementById("targetCurrency").value;
+
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${baseCurrency}&to=${targetCurrency}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch conversion rates.");
+      }
+
+      const data = await response.json();
+      const convertedAmount = data.rates[targetCurrency];
+
+      document.getElementById("result").innerText = 
+        `${amount} ${baseCurrency} = ${convertedAmount.toFixed(2)} ${targetCurrency}`;
+    } catch (error) {
+      console.error(error);
+      alert("Error fetching conversion data. Please try again later.");
+    }
+  }
+
+  //financial news API
+  async function loadFinancialNews() {
+    const apiKey = "03a5fbb0a42746f1b1c58d90c4dbd65a";
+    const url = `https://newsapi.org/v2/everything?q=finance&apiKey=${apiKey}`;
+  
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+  
+      const newsWidget = document.getElementById("news-widget");
+  
+      data.articles.slice(0, 6).forEach(article => {
+        const newsCard = `
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="${article.urlToImage || 'https://via.placeholder.com/150'}" class="card-img-top" alt="${article.title}">
+              <div class="card-body">
+                <h5 class="card-title">${article.title}</h5>
+                <p class="card-text">${article.description || 'No description available.'}</p>
+                <a href="${article.url}" class="btn btn-primary" target="_blank">Read More</a>
+              </div>
+            </div>
+          </div>`;
+        
+        newsWidget.insertAdjacentHTML('beforeend', newsCard);
+      });
+    } catch (error) {
+      console.error("Error fetching financial news:", error);
+      document.getElementById("news-widget").innerHTML = `<p class="text-danger">Failed to load news. Please try again later.</p>`;
+    }
+  }
+  
+  // Load news on page load
+  document.addEventListener("DOMContentLoaded", loadFinancialNews);
+  

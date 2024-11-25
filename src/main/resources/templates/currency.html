@@ -6,10 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Pennywise - Budgets</title>
+        <title>Pennywise - Currency Converter</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <link href="/css/styles.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -110,92 +110,43 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Budgets</h1>
+                        <h1 class="mt-4">Currency Converter</h1>
                         <ol class="breadcrumb mb-4">
-                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Budgets</li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Currency Converter</li>
                         </ol>
-                        <!-- Budgets Charts -->
-                        <div class="container mt-5">
-                            <h3>My Budgets</h3>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Budget Name</th>
-                                        <th scope="col">Amount</th>
-                                        <th scope="col">Start Date</th>
-                                        <th scope="col">End Date</th>
-                                        <th scope="col">Weekly Spending Limit</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="budgetTableBody">
-                                    <!-- Table rows will be populated here -->
-                                </tbody>
-                            </table>
+                        <div class="container mt-4">
+                            <h2 class="text-center mb-4">Currency Converter</h2>
+                            <form id="currency-converter-form" class="p-4 border rounded shadow-sm">
+                              <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="amount" placeholder="Enter amount" required>
+                              </div>
+                              <div class="mb-3">
+                                <label for="baseCurrency" class="form-label">From</label>
+                                <select class="form-select" id="baseCurrency">
+                                  <option value="USD">USD</option>
+                                  <option value="EUR">EUR</option>
+                                  <option value="GBP">GBP</option>
+                                  <option value="JPY">JPY</option>
+                                </select>
+                              </div>
+                              <div class="mb-3">
+                                <label for="targetCurrency" class="form-label">To</label>
+                                <select class="form-select" id="targetCurrency">
+                                  <option value="USD">USD</option>
+                                  <option value="EUR">EUR</option>
+                                  <option value="GBP">GBP</option>
+                                  <option value="JPY">JPY</option>
+                                </select>
+                              </div>
+                              <div class="text-center">
+                                <button type="button" class="btn btn-primary w-100" onclick="convertCurrency()">Convert</button>
+                              </div>
+                            </form>
+                            <div class="result mt-4 text-center" id="result"></div>
                         </div>
-                        <!-- Create Budget -->
-                        <h3 class="mt-4">Create a New Budget</h3>
-                        <form id="createBudgetForm">
-                            <div class="form-group">
-                                <label for="budgetName">Budget Name</label>
-                                <input type="text" id="budgetName" name="budgetName" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="budgetAmount">Budget Amount</label>
-                                <input type="number" id="budgetAmount" name="budgetAmount" class="form-control" placeholder="Enter budget amount" required step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label for="startDate">Start Date</label>
-                                <input type="date" id="budgetStartDate" name="budgetStartDate" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="endDate">End Date</label>
-                                <input type="date" id="budgetEndDate" name="budgetEndDate" class="form-control" required>
-                            </div>
-                            <div id="errorMessage" class="text-danger mt-2"></div>
-                            <button type="submit" class="btn btn-primary">Create Budget</button>
-                        </form>
-                        <!-- Update a Budget -->
-                        <h3 class="mt-4">Update an Existing Budget</h3>
-                        <form id="updateBudgetForm">
-                            <div class="form-group">
-                                <label for="budgetSelect">Select Budget</label>
-                                <select id="budgetSelect" name="budgetId" class="form-control" required>
-                                    <!-- Budgets will be dynamically populated -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="updateBudgetName">New Budget Name</label>
-                                <input type="text" id="updateBudgetName" name="updateBudgetName" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="updateBudgetAmount">New Budget Amount</label>
-                                <input type="number" id="updateBudgetAmount" name="updateBudgetAmount" class="form-control" placeholder="Enter budget amount" required step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label for="updateBudgetStartDate">New Start Date</label>
-                                <input type="date" id="updateBudgetStartDate" name="updateBudgetStartDate" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="updateBudgetEndDate">New End Date</label>
-                                <input type="date" id="updateBudgetEndDate" name="updateBudgetEndDate" class="form-control" required>
-                            </div>
-                            <div id="errorMessageUpdateBudget" class="text-danger mt-2"></div>
-                            <button type="submit" class="btn btn-primary">Update Budget</button>
-                        </form>
-                        <!-- Delete a Budget -->
-                        <h3 class="mt-4">Delete a Budget</h3>
-                        <form id="deleteBudgetForm">
-                            <div class="form-group">
-                                <label for="budgetSelectDelete">Select Budget</label>
-                                <select id="budgetSelectDelete" name="budgetId" class="form-control" required>
-                                    <!-- Budgets will be dynamically populated -->
-                                </select>
-                            </div>
-                            <div id="errorMessageDeleteBudget" class="text-danger mt-2"></div>
-                            <button type="submit" class="btn btn-primary">Delete Budget</button>
-                        </form> 
-                        
+                          
                     </div>
                 </main>
                 <footer class="py-4 bg-light mt-auto">
@@ -214,9 +165,7 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="/js/scripts.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="assets/demo/chart-area-demo.js"></script>
-        <script src="assets/demo/chart-bar-demo.js"></script>
-        <script src="assets/demo/chart-pie-demo.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script src="js/datatables-simple-demo.js"></script>
     </body>
 </html>
