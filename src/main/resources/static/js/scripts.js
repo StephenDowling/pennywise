@@ -420,6 +420,80 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error('Error fetching transactions:', error));
 });
 
+//transaction/category pie chart 
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+
+    // Fetch the transactions data
+    fetch('http://localhost:8080/api/transactions/my-transactions')
+        .then(response => response.json())
+        .then(data => {
+            // Group transactions by category
+            const categoryData = data.reduce((acc, transaction) => {
+                if (transaction.type === 'EXPENSE') { // Filter by expense type if needed
+                    acc[transaction.categoryName] = (acc[transaction.categoryName] || 0) + transaction.amount;
+                }
+                return acc;
+            }, {});
+
+            // Extract labels (categories) and values (total amounts per category)
+            const labels = Object.keys(categoryData);
+            const values = Object.values(categoryData);
+
+            // Define colors for each category
+            const backgroundColors = [
+                'rgba(255, 99, 132, 0.2)', // Red
+                'rgba(54, 162, 235, 0.2)', // Blue
+                'rgba(255, 206, 86, 0.2)', // Yellow
+                'rgba(75, 192, 192, 0.2)', // Green
+                'rgba(153, 102, 255, 0.2)', // Purple
+                'rgba(255, 159, 64, 0.2)'  // Orange
+            ];
+            const borderColors = [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ];
+
+            // Create the pie chart
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Transaction Split by Category',
+                        data: values,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderColor: borderColors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    const category = tooltipItem.label;
+                                    const amount = tooltipItem.raw;
+                                    return `${category}: $${amount.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching transactions:', error));
+});
+
 //create transaction 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("#createTransactionForm");
@@ -516,7 +590,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(transactions => {
             tableBody.innerHTML = ""; // Clear the table body
-
+            //sort the transactions
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             transactions.forEach(transaction => {
                 const row = document.createElement("tr");
 
@@ -662,7 +737,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(transactions => {
             tableBody.innerHTML = ""; // Clear any existing rows
-
+            //sort the transactions 
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
             transactions.forEach(transaction => {
                 const row = document.createElement("tr");
 

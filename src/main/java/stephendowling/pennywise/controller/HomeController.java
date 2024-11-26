@@ -3,21 +3,33 @@ package stephendowling.pennywise.controller;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 
 @Controller
 public class HomeController {
 
-    // @GetMapping("/") // Maps the root URL
-    // public String homePage() {
-    //     return "index"; // Return the name of the HTML file (index.html) located in `src/main/resources/templates`
-    // }
-
-    @GetMapping("/login") // Maps the root URL
-    public String logIn() {
-        return "login"; // Return the name of the HTML file (login.html) located in `src/main/resources/templates`
+    //so username is visibile in every page 
+   @ModelAttribute
+    public void addUserToModel(Model model) {
+        //get the logged-in user's username
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName(); //pass it to the view
+            model.addAttribute("username", username);
+        }
     }
+
+    @GetMapping("/login")
+    public String login(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", "Invalid username or password. Please try again.");
+        }
+        return "login"; // Return the login HTML page
+    }
+
 
     @GetMapping("/register") // Maps the "/register" URL
     public String register() {
@@ -76,11 +88,7 @@ public class HomeController {
 
     //retrieves username for use in index.html
     @GetMapping("/")
-    public String homePage(Model model) {
-        // Get the logged-in user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        model.addAttribute("username", username); // Pass it to the view
+    public String homePage() {
         return "index"; // The name of your template (e.g., index.html)
     }
 }
