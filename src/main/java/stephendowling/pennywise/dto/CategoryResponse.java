@@ -9,7 +9,7 @@ public class CategoryResponse {
     private Integer categoryId;
     private UserSummary user;
 
-
+    //constructor getters and setters 
     public CategoryResponse() {
     }
 

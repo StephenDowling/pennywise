@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 
 @Controller
-public class HomeController {
+public class HomeController { //for routing requests to HTML pages 
 
     //so username is visibile in every page 
    @ModelAttribute
@@ -22,23 +22,24 @@ public class HomeController {
         }
     }
 
+    //log in page with error handling 
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
             model.addAttribute("errorMessage", "Invalid username or password. Please try again.");
         }
-        return "login"; // Return the login HTML page
+        return "login"; //return the login HTML page
     }
 
 
-    @GetMapping("/register") // Maps the "/register" URL
+    @GetMapping("/register") //maps the "/register" URL
     public String register() {
-        return "register"; // Return the name of the HTML file (register.html)
+        return "register"; //return the name of the HTML file (register.html)
     }
 
-    @GetMapping("/password") // Maps the "/password" URL
+    @GetMapping("/password") //maps the "/password" URL
     public String password() {
-        return "password"; // Return the name of the HTML file (register.html)
+        return "password"; //return the name of the HTML file (password.html)
     }
 
     @GetMapping("/update")
@@ -86,9 +87,9 @@ public class HomeController {
         return "currency";
     }
 
-    //retrieves username for use in index.html
+    //retrieves home page 
     @GetMapping("/")
     public String homePage() {
-        return "index"; // The name of your template (e.g., index.html)
+        return "index"; 
     }
 }

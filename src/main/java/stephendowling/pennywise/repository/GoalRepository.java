@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import stephendowling.pennywise.model.Goal;
 
+//for talking to the DB
 @Repository
 public interface GoalRepository extends JpaRepository<Goal, Integer> {
     

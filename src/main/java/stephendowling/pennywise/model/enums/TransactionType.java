@@ -1,5 +1,6 @@
 package stephendowling.pennywise.model.enums;
 
+//for use when value can only be Income or Expense  
 public enum TransactionType {
     INCOME("Income"),
     EXPENSE("Expense");

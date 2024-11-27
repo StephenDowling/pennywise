@@ -19,7 +19,7 @@ import stephendowling.pennywise.model.Goal;
 import stephendowling.pennywise.service.GoalService;
 
 @RestController
-@RequestMapping("/api/goals")
+@RequestMapping("/api/goals") //end point 
 public class GoalController {
     
     private final GoalService goalService;
@@ -37,10 +37,10 @@ public class GoalController {
     }
 
     /* METHODS FOR ALL USERS */
-    // Get all goals for the currently logged-in user
+    //get all goals for the currently logged-in user
     @GetMapping("/my-goals") //http://localhost:8080/api/goals/my-goals
     public List<GoalResponse> getAllGoalsForAuthenticatedUser() {
-        // Call the service method to get all categories for the authenticated user
+        //call the service method to get all goals for the authenticated user
         return goalService.getAllGoalsForCurrentUser();
     }
 

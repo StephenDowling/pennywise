@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import stephendowling.pennywise.model.enums.GoalStatus;
 
+//DTO for responding to CRUD methods for Goal entity 
 public class GoalResponse {
     
     private Integer goalId;
@@ -16,6 +17,7 @@ public class GoalResponse {
     private UserSummary user;
 
 
+    //constructor getters and setters 
     public GoalResponse() {
     }
 
@@ -85,7 +87,7 @@ public class GoalResponse {
         this.status = status;
     }
 
-
+    //for debugging
     @Override
     public String toString() {
         return "{" +

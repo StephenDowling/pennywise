@@ -19,7 +19,7 @@ import stephendowling.pennywise.model.Category;
 import stephendowling.pennywise.service.CategoryService;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api/categories") //end point 
 public class CategoryController {
     
     private final CategoryService categoryService;
@@ -40,7 +40,7 @@ public class CategoryController {
     // Get all categories for the currently logged-in user
     @GetMapping("/my-categories") //http://localhost:8080/api/categories/my-categories
     public List<CategoryResponse> getAllCategoriesForAuthenticatedUser() {
-        // Call the service method to get all categories for the authenticated user
+        //call the service method to get all categories for the authenticated user
         return categoryService.getAllCategoriesForCurrentUser();
     }
     

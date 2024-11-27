@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import stephendowling.pennywise.model.User;
 
-
+//for talking to the DB
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 

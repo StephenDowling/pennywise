@@ -28,7 +28,7 @@ import stephendowling.pennywise.exceptions.UserNotFoundException;
 import stephendowling.pennywise.model.User;
 
 @RestController
-@RequestMapping("/api/users") //http://localhost:8080/api/users
+@RequestMapping("/api/users") //http://localhost:8080/api/users end point 
 public class UserController {
 
     private final UserService userService;
@@ -126,12 +126,12 @@ public class UserController {
     @PostMapping("/register-new") //http://localhost:8080/api/users/register-new
     public ResponseEntity<?> registerUser(@RequestBody @Valid RegistrationRequest request) {
         try {
-            userService.registerUser(request); // Your logic to register the user
-            // Create a response object with a message
+            userService.registerUser(request); //service method
+            //create a response DTO with a message
             RegistrationResponse response = new RegistrationResponse("User registered successfully");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Return error in case of an exception
+            //return error in case of an exception
             RegistrationResponse errorResponse = new RegistrationResponse("Error during registration: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }

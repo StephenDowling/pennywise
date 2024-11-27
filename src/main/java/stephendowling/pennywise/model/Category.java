@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "category")
+@Table(name = "category") //sepcifying for ease 
 public class Category {
 
     @Id
@@ -19,12 +19,12 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Represents the foreign key relationship to the User entity
+    private User user; //represents the foreign key relationship to the User entity
 
     @NotNull
-    private String name;
+    private String name; //required 
 
-
+    //constructor, getters & setters 
     public Category() {
     }
 

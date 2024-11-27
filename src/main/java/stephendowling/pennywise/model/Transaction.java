@@ -17,21 +17,21 @@ import jakarta.validation.constraints.NotNull;
 import stephendowling.pennywise.model.enums.TransactionType;
 
 @Entity
-@Table(name = "transaction")
+@Table(name = "transaction") //for clarity 
 public class Transaction {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //generated automatically 
     private Integer transactionId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; 
+    private User user;  //user_id is a foreign key 
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     @NotNull(message = "Category must not be null")
-    private Category category; 
+    private Category category;  //category_id is a foreign key 
 
     @NotNull
     @Digits(integer = 10, fraction = 2)
@@ -43,9 +43,9 @@ public class Transaction {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private TransactionType type;
+    private TransactionType type; //transaction has to be either Income or Expense 
 
-
+    //constructor getters and setters 
     public Transaction() {
     }
 

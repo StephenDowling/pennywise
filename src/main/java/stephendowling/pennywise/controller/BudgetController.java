@@ -12,7 +12,7 @@ import stephendowling.pennywise.service.BudgetService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/budgets")
+@RequestMapping("/api/budgets") //end point 
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -49,7 +49,7 @@ public class BudgetController {
     public ResponseEntity<BudgetResponse> updateBudget(@RequestBody Budget budget, @PathVariable Integer id) {
         try {
             BudgetResponse updatedBudget = budgetService.update(budget, id);
-            return ResponseEntity.ok(updatedBudget);  // Returning BudgetResponse
+            return ResponseEntity.ok(updatedBudget);  //returning BudgetResponse DTO
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity 
-@Table(name = "budget")
+@Table(name = "budget") //specifying for ease 
 public class Budget {
 
     @Id
@@ -16,7 +16,7 @@ public class Budget {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Represents the foreign key relationship to the User entity
+    private User user; //represents the foreign key relationship to the User entity
 
     @NotNull
     @Digits(integer = 10, fraction = 2)
@@ -30,10 +30,10 @@ public class Budget {
 
     @NotNull
     @Column(length = 100, nullable = true)
-    private String name; // Optional name for the budget
+    private String name; //name for the budget
    
 
-    // Constructors
+    //constructors
     public Budget() {} //empty constructor good practice 
 
     public Budget(User user, BigDecimal amount, LocalDate startDate, LocalDate endDate, String name) {
@@ -44,7 +44,7 @@ public class Budget {
         this.name = name;
     }
 
-    // Getters and setters
+    //getters and setters
     public Integer getBudgetId() {
         return budgetId;
     }

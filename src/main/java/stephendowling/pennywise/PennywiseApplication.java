@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PennywiseApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PennywiseApplication.class, args);
+		SpringApplication.run(PennywiseApplication.class, args); //for running the application 
 	}
 
 }

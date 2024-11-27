@@ -22,13 +22,13 @@ public class SecurityConfiguration {
         this.userDetailsService = userDetailsService;
     }
 
-    // Bean for password encoding
+    //bean for password encoding
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configure authentication manager with userDetailsService and password encoder
+    //configure authentication manager with userDetailsService and password encoder
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -37,15 +37,15 @@ public class SecurityConfiguration {
     }
     
 
-    // Configure security rules
+    //configure security rules for access/logging in/logging out 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disabling CSRF for APIs (be careful with this in production)
+            .csrf(csrf -> csrf.disable()) //disabling CSRF for APIs 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/password", "/css/**", "/js/**", "/images/**", "/api/users/register-new") // Include your API endpoint here
-                .permitAll()  // Allow unauthenticated access to these endpoints
-                .anyRequest().authenticated() // Other requests require authentication
+                .requestMatchers("/register", "/password", "/css/**", "/js/**", "/images/**", "/api/users/register-new") //need new users to be able to register
+                .permitAll()  //allow unauthenticated access to these endpoints
+                .anyRequest().authenticated() //everything else requires authentication
             )
             .formLogin(form -> form
                 .loginPage("/login")

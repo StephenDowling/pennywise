@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import stephendowling.pennywise.model.Category;
 import stephendowling.pennywise.model.User;
 
+//for talking to the DB
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer>{
 

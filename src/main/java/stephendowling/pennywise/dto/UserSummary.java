@@ -4,8 +4,15 @@ package stephendowling.pennywise.dto;
 //should return the user's ID and username, but not their password as was previously 
 
 public class UserSummary {
+
     private Integer userId;
     private String username;
+
+    //Constructor, getters, setters
+     public UserSummary(Integer userId, String username) {
+        this.userId = userId;
+        this.username = username;
+    }
 
     public Integer getUserId() {
         return this.userId;
@@ -23,9 +30,4 @@ public class UserSummary {
         this.username = username;
     }
 
-    // Constructor, getters, setters
-    public UserSummary(Integer userId, String username) {
-        this.userId = userId;
-        this.username = username;
-    }
 }

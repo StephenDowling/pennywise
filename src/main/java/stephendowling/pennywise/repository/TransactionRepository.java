@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import stephendowling.pennywise.model.Transaction;
 
+//for talking to the DB
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer>{
     

@@ -17,35 +17,36 @@ import jakarta.validation.constraints.NotNull;
 import stephendowling.pennywise.model.enums.GoalStatus;
 
 @Entity
-@Table(name = "goal")
-    public class Goal {
+@Table(name = "goal") //specifying for ease 
+public class Goal {
         
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer goalId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //generated automatically 
+    private Integer goalId;
 
-        @ManyToOne
-        @JoinColumn(name = "user_id", nullable = false)
-        private User user; 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;  //user_id is a foreign key here 
 
-        @NotNull
-        private String name;
+    @NotNull
+    private String name;
 
-        @NotNull
-        @Digits(integer = 10, fraction = 2)
-        private BigDecimal targetAmount; //using big decimal as had issue with using Double
+    @NotNull
+    @Digits(integer = 10, fraction = 2)
+    private BigDecimal targetAmount; //using big decimal as had issue with using Double
 
-        @NotNull
-        @Digits(integer = 10, fraction = 2)
-        private BigDecimal currentAmount;
+    @NotNull
+    @Digits(integer = 10, fraction = 2)
+    private BigDecimal currentAmount;
 
-        @NotNull
-        private LocalDate deadline;
+    @NotNull
+    private LocalDate deadline;
 
-        @Enumerated(EnumType.STRING)
-        private GoalStatus status;
+    @Enumerated(EnumType.STRING)
+    private GoalStatus status; //has to be In Progress or Achieved 
 
 
+    //constructors getters & setters 
     public Goal() {
     }
 

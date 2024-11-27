@@ -1,20 +1,21 @@
 package stephendowling.pennywise.dto;
 
+//DTO for responding to registration requests 
 public class RegistrationResponse {
     
     private String message;
 
-    // Constructor
+    //constructor
     public RegistrationResponse(String message) {
         this.message = message;
     }
 
-    // Getter
+    //getter
     public String getMessage() {
         return message;
     }
 
-    // Setter
+    //setter
     public void setMessage(String message) {
         this.message = message;
     }

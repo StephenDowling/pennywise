@@ -3,7 +3,7 @@ package stephendowling.pennywise.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-//DTO for registering a new user 
+//DTO for registering a new user - sent to backend  
 
 public class RegistrationRequest {
     @NotBlank
@@ -16,7 +16,7 @@ public class RegistrationRequest {
     @NotBlank
     private String password;
 
-
+    //constructor getters and setters 
     public RegistrationRequest() {
     }
 
@@ -65,6 +65,7 @@ public class RegistrationRequest {
         return this;
     }
 
+    //debugging
     @Override
     public String toString() {
         return "{" +

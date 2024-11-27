@@ -12,17 +12,18 @@ public class BudgetResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String name;
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
     private UserSummary user;
 
-    // Constructor, getters, setters
+    // constructor, getters, setters
+    public BudgetResponse(Integer budgetId, BigDecimal amount, LocalDate startDate, LocalDate endDate, String name, UserSummary user) {
+        this.budgetId = budgetId;
+        this.amount = amount;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.name = name;
+        this.user = user;
+     
+    }
 
     public Integer getBudgetId() {
         return this.budgetId;
@@ -56,22 +57,19 @@ public class BudgetResponse {
         this.endDate = endDate;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+   
     public UserSummary getUser() {
         return this.user;
     }
 
     public void setUser(UserSummary user) {
         this.user = user;
-    }
-
-   
-    public BudgetResponse(Integer budgetId, BigDecimal amount, LocalDate startDate, LocalDate endDate, String name, UserSummary user) {
-        this.budgetId = budgetId;
-        this.amount = amount;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.name = name;
-        this.user = user;
-     
     }
 }

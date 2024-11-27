@@ -3,17 +3,18 @@ package stephendowling.pennywise.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+//DTO for responding to CRUD methods for Transactions 
 public class TransactionResponse {
+
     private Integer transactionId;
     private BigDecimal amount;
     private LocalDate date;
     private String type;
     private String description;
-
     private String categoryName; 
     private UserSummary user;  
 
-    // Constructors, getters, and setters
+    //constructors, getters, and setters
 
     public TransactionResponse() {
     }
