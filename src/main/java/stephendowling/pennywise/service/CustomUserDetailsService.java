@@ -35,15 +35,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Fetch user from the database
+        //fetch user from the database
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        // Convert user's role into GrantedAuthority
+        //convert user's role into GrantedAuthority
         Collection<? extends GrantedAuthority> authorities = 
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
 
-        // Build and return CustomUserDetails
+        //build and return CustomUserDetails
         return new CustomUserDetails(
                 user.getUserId(),
                 user.getUsername(),
