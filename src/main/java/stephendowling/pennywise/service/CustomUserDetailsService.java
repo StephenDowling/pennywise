@@ -16,12 +16,12 @@ import stephendowling.pennywise.model.User;
 import stephendowling.pennywise.config.CustomUserDetails;
 import stephendowling.pennywise.repository.UserRepository;
 
-//retrieving a username, a password, and other attributes for authenticating with a username and password
-// When Spring Security authenticates a user, it uses CustomUserDetailsService to load the user
-// The returned CustomUserDetails is stored in the Authentication object
-// To access the user's ID, call getAuthenticatedUserId() and cast the principal to CustomUserDetails:
-
-
+/*
+ * retrieving a username, a password, and other attributes for authenticating with a username and password
+ * when Spring Security authenticates a user, it uses CustomUserDetailsService to load the user
+ * the returned CustomUserDetails is stored in the Authentication object
+ * to access the user's ID, call getAuthenticatedUserId() and cast the principal to CustomUserDetails:
+ */
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

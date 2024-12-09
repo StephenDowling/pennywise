@@ -41,7 +41,7 @@ public class TransactionService extends BaseService {
         if(principal instanceof CustomUserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
         
-            // Check if the user has ADMIN role
+            //check if the user has ADMIN role
             boolean isAdmin = userDetails.getAuthorities().stream()
             .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
 
@@ -58,15 +58,15 @@ public class TransactionService extends BaseService {
     }
 
     /* METHODS FOR ALL USERS */
-    // Get all transactions for the currently logged-in user
+    //get all transactions for the currently logged-in user
     public List<TransactionResponse> getAllTransactionsForCurrentUser() {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Fetch all transactions for the authenticated user
+        //fetch all transactions for the authenticated user
         List<Transaction> transactions = transactionRepository.findByUser_UserId(authenticatedUserId);
 
-        // Map the list of transactions to TransactionResponse DTOs and return the list
+        //map the list of transactions to TransactionResponse DTOs and return the list
         return transactions.stream()
                     .map(this::mapToTransactionResponse)
                     .collect(Collectors.toList());
@@ -74,17 +74,17 @@ public class TransactionService extends BaseService {
 
     //create a transaction 
     public TransactionResponse create(Transaction transaction) {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
     
-        // Fetch the authenticated user from the database
+        //fetch the authenticated user from the database
         User user = userRepository.findById(authenticatedUserId)
                                 .orElseThrow(() -> new UserNotFoundException());
     
-        // Associate the transaction with the authenticated user
+        //associate the transaction with the authenticated user
         transaction.setUser(user);
     
-        // Fetch the category using the categoryId provided in the request
+        //fetch the category using the categoryId provided in the request
         if (transaction.getCategory() == null || transaction.getCategory().getCategoryId() == null) {
             throw new IllegalArgumentException("Category ID must be provided");
         }
@@ -92,29 +92,29 @@ public class TransactionService extends BaseService {
         Category category = categoryRepository.findById(transaction.getCategory().getCategoryId())
                      .orElseThrow(() -> new CategoryNotFoundException());
     
-        // Associate the transaction with the fetched category
+        //associate the transaction with the fetched category
         transaction.setCategory(category);
     
-        // Save the Transaction entity
+        //save the Transaction entity
         transaction = transactionRepository.save(transaction);
     
-        // Map the saved transaction entity to a TransactionResponse and return it
+        //map the saved transaction entity to a TransactionResponse and return it
         return mapToTransactionResponse(transaction);
     }
     
     //update a transaction 
     public TransactionResponse update(Transaction transaction, Integer id) {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
     
         return transactionRepository.findById(id)
                 .map(existingTransaction -> {
-                    // Ensure the authenticated user is the owner of the transaction
+                    //ensure the authenticated user is the owner of the transaction
                     if (!existingTransaction.getUser().getUserId().equals(authenticatedUserId)) {
                         throw new UnauthorisedAccessException("You can only update your own transactions");
                     }
     
-                    // Fetch and validate the category provided in the request
+                    //fetch and validate the category provided in the request
                     if (transaction.getCategory() == null || transaction.getCategory().getCategoryId() == null) {
                         throw new IllegalArgumentException("Category ID must be provided");
                     }
@@ -122,18 +122,18 @@ public class TransactionService extends BaseService {
                     Category category = categoryRepository.findById(transaction.getCategory().getCategoryId())
                             .orElseThrow(() -> new CategoryNotFoundException());
     
-                    // Update the transaction fields
-                    existingTransaction.setCategory(category);  // Ensure the valid category is set
+                    //update the transaction fields
+                    existingTransaction.setCategory(category);  //ensure the valid category is set
                     existingTransaction.setAmount(transaction.getAmount());
                     existingTransaction.setDate(transaction.getDate());
                     existingTransaction.setType(transaction.getType());
                     existingTransaction.setDescription(transaction.getDescription());
     
-                    // Save and return the updated transaction
+                    //save and return the updated transaction
                     Transaction updatedTransaction = transactionRepository.save(existingTransaction);
                     return mapToTransactionResponse(updatedTransaction); 
                 })
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+                .orElseThrow(() -> new TransactionNotFoundException());
     }
     
     //delete a transaction 
@@ -143,12 +143,12 @@ public class TransactionService extends BaseService {
         Transaction transaction = transactionRepository.findById(transactionId)
             .orElseThrow(() -> new TransactionNotFoundException());
 
-        // Verify that the transaction belongs to the authenticated user
+        //verify that the transaction belongs to the authenticated user
         if(!transaction.getUser().getUserId().equals(authenticatedUserId)){
             throw new UnauthorisedAccessException("Unauthorised delete attempt");
         }
 
-        // If everything is valid, delete the transaction
+        //delete the transaction
         transactionRepository.deleteById(transactionId);
     }
 
@@ -156,38 +156,39 @@ public class TransactionService extends BaseService {
     public TransactionResponse mapToTransactionResponse(Transaction transaction) {
         TransactionResponse response = new TransactionResponse();
 
-        // Set fields from Transaction
+        //set fields from Transaction
         response.setTransactionId(transaction.getTransactionId());
         response.setAmount(transaction.getAmount());
         response.setDate(transaction.getDate());
         response.setType(transaction.getType().toString());
         response.setDescription(transaction.getDescription());
 
-        // Map User to UserSummary
+        //map User to UserSummary
         UserSummary userSummary = new UserSummary(transaction.getUser().getUserId(), 
                                                 transaction.getUser().getUsername());
         response.setUser(userSummary);
 
-        // Map Category Name
+        //map Category Name
         response.setCategoryName(transaction.getCategory().getName());
 
         return response;
     }
 
+    //find transaction by Id
     public TransactionResponse findById(Integer transactionId) {
-        // Retrieve the authenticated user's ID
+        //retrieve the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
     
-        // Fetch the transaction from the repository
+        //fetch the transaction from the repository
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new TransactionNotFoundException());
     
-        // Verify that the transaction belongs to the authenticated user
+        //verify that the transaction belongs to the authenticated user
         if (!transaction.getUser().getUserId().equals(authenticatedUserId)) {
             throw new UnauthorisedAccessException("Unauthorised access attempt for transaction ID " + transactionId);
         }
     
-        // Return the transaction if validation passes
+        //return the transaction if validation passes
         return mapToTransactionResponse(transaction);
     }
 

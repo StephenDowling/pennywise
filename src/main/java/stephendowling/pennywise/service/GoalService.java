@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import stephendowling.pennywise.config.CustomUserDetails;
 import stephendowling.pennywise.dto.GoalResponse;
 import stephendowling.pennywise.dto.UserSummary;
-import stephendowling.pennywise.exceptions.CategoryNotFoundException;
 import stephendowling.pennywise.exceptions.GoalNotFoundException;
 import stephendowling.pennywise.exceptions.UnauthorisedAccessException;
 import stephendowling.pennywise.exceptions.UserNotFoundException;
@@ -38,7 +37,7 @@ public class GoalService extends BaseService {
         if (principal instanceof CustomUserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
     
-            // Check if the user has ADMIN role
+            //check if the user has ADMIN role
             boolean isAdmin = userDetails.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
     
@@ -46,24 +45,24 @@ public class GoalService extends BaseService {
                 throw new UnauthorisedAccessException("Unauthorized access");
             }
         } else {
-            throw new RuntimeException("User not authenticated");
+            throw new UnauthorisedAccessException("User not authenticated");
         }
         List<Goal> goals = goalRepository.findAll();
         return goals.stream()
-                      .map(this::mapToGoalResponse) // map each Category to BudgetResponse
+                      .map(this::mapToGoalResponse) // map each goal to GoalResponse
                       .collect(Collectors.toList());
     }
 
     /* METHODS FOR ALL USERS */
     //get all goals for current user
     public List<GoalResponse> getAllGoalsForCurrentUser() {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Fetch all budgets for the authenticated user
+        //fetch all goals for the authenticated user
         List<Goal> goals = goalRepository.findByUser_UserId(authenticatedUserId);
 
-        // Map the list of budgets to BudgetResponse DTOs and return the list
+        //map the list of goals to goalResponse DTOs and return the list
         return goals.stream()
                     .map(this::mapToGoalResponse)
                     .collect(Collectors.toList());
@@ -71,46 +70,43 @@ public class GoalService extends BaseService {
 
     //create a new goal 
     public GoalResponse create(Goal goal) {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Fetch the authenticated user from the database
+        //fetch the authenticated user from the database
         User user = userRepository.findById(authenticatedUserId)
                                 .orElseThrow(() -> new UserNotFoundException());
 
-        // Associate the budget with the authenticated user
+        //associate the goal with the authenticated user
         goal.setUser(user);
 
-        // Save the Budget entity
+        //save the goal entity
         goal = goalRepository.save(goal);
 
-        // Map the saved Budget entity to a BudgetResponse and return it
+        //map the saved goal entity to a GoalResponse and return it
         return mapToGoalResponse(goal);
     }
 
     //update a goal
     public GoalResponse update(Goal goal, Integer id) {
-       // Get the authenticated user's ID
+       //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
         return goalRepository.findById(id)
                 .map(existingGoal -> {
-                    // Ensure the authenticated user is the one who owns the category
+                    //ensure the authenticated user is the one who owns the goal
                     if (!existingGoal.getUser().getUserId().equals(authenticatedUserId)) {
                         throw new UnauthorisedAccessException("You can only update your own goals");
                     }
 
-                    // Update the goal fields
+                    //update the goal fields
                     existingGoal.setName(goal.getName());
                     existingGoal.setTargetAmount(goal.getTargetAmount());
                     existingGoal.setCurrentAmount(goal.getCurrentAmount());
                     existingGoal.setDeadline(goal.getDeadline());
                     existingGoal.setStatus(goal.getStatus());
 
-                    // Ensure user is still associated with the authenticated user (for consistency)
-                    existingGoal.setUser(existingGoal.getUser());  // No need to update the user, it's already the authenticated user
-
-                    // Save and return the updated budget
+                    //save and return the updated goal
                     Goal updatedGoal = goalRepository.save(existingGoal);
                     return mapToGoalResponse(updatedGoal); 
                 })
@@ -121,27 +117,27 @@ public class GoalService extends BaseService {
     public void delete(Integer goalId) {
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Retrieve the category by its ID
+        //retrieve the goal by its ID
         Goal goal = goalRepository.findById(goalId)
-                .orElseThrow(() -> new CategoryNotFoundException());
+                .orElseThrow(() -> new GoalNotFoundException());
 
-        // Verify that the category belongs to the authenticated user
+        //verify that the goal belongs to the authenticated user
         if (!goal.getUser().getUserId().equals(authenticatedUserId)) {
             throw new UnauthorisedAccessException("Unauthorised delete attempt");
         }
 
-        // If everything is valid, delete the category
+        //delete the goal
         goalRepository.deleteById(goalId);
     }
 
     //helper method for mapping Goal to GoalResponse DTO
     private GoalResponse mapToGoalResponse(Goal goal){
-       User user = goal.getUser(); // Get associated user from Goal
+       User user = goal.getUser(); //get associated user from Goal
         
-        // Map User to UserSummary DTO (avoiding full User details like password)
+        //map User to UserSummary DTO
         UserSummary userSummary = new UserSummary(user.getUserId(), user.getUsername());
         
-        // Create and return the GoalResponse DTO, including the UserSummary
+        //create and return the GoalResponse DTO
         return new GoalResponse(
                 goal.getGoalId(),
                 goal.getName(),
@@ -149,7 +145,7 @@ public class GoalService extends BaseService {
                 goal.getCurrentAmount(),
                 goal.getDeadline(),
                 goal.getStatus(),
-                userSummary // Only user ID and username will be included, no password
+                userSummary 
         );
     }
     

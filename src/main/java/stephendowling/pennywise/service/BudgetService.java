@@ -37,7 +37,7 @@ public class BudgetService extends BaseService{
         if (principal instanceof CustomUserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
     
-            // Check if the user has ADMIN role
+            //check if the user has ADMIN role
             boolean isAdmin = userDetails.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
     
@@ -45,7 +45,7 @@ public class BudgetService extends BaseService{
                 throw new UnauthorisedAccessException("Unauthorized access");
             }
         } else {
-            throw new RuntimeException("User not authenticated");
+            throw new UnauthorisedAccessException("User not authenticated");
         }
 
         List<Budget> budgets = budgetRepository.findAll();
@@ -55,99 +55,96 @@ public class BudgetService extends BaseService{
     }
 
     /* METHODS FOR ALL USERS */
-    // Get all budgets for the currently logged-in user
+    //get all budgets for the currently logged-in user
     public List<BudgetResponse> getAllBudgetsForCurrentUser() {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Fetch all budgets for the authenticated user
+        //fetch all budgets for the authenticated user
         List<Budget> budgets = budgetRepository.findByUser_UserId(authenticatedUserId);
 
-        // Map the list of budgets to BudgetResponse DTOs and return the list
+        //map the list of budgets to BudgetResponse DTOs and return the list
         return budgets.stream()
                     .map(this::mapToBudgetResponse)
                     .collect(Collectors.toList());
     }
         
-    // Create a new budget
+    //create a new budget
     public BudgetResponse create(Budget budget) {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Fetch the authenticated user from the database
+        //fetch the authenticated user from the database
         User user = userRepository.findById(authenticatedUserId)
                                 .orElseThrow(() -> new UserNotFoundException());
 
-        // Associate the budget with the authenticated user
+        //associate the budget with the authenticated user
         budget.setUser(user);
 
-        // Save the Budget entity
+        //save the Budget entity
         budget = budgetRepository.save(budget);
 
-        // Map the saved Budget entity to a BudgetResponse and return it
+        //map the saved Budget entity to a BudgetResponse and return it
         return mapToBudgetResponse(budget);
     }
 
-    // Update an existing budget
+    //update an existing budget
     public BudgetResponse update(Budget budget, Integer id) {
-        // Get the authenticated user's ID
+        //get the authenticated user's ID
         Integer authenticatedUserId = getAuthenticatedUserId();
 
         return budgetRepository.findById(id)
                 .map(existingBudget -> {
-                    // Ensure the authenticated user is the one who owns the budget
+                    //ensure the authenticated user is the one who owns the budget
                     if (!existingBudget.getUser().getUserId().equals(authenticatedUserId)) {
                         throw new UnauthorisedAccessException("You can only update your own budgets");
                     }
 
-                    // Update the budget fields
+                    //update the budget fields
                     existingBudget.setAmount(budget.getAmount());
                     existingBudget.setStartDate(budget.getStartDate());
                     existingBudget.setEndDate(budget.getEndDate());
                     existingBudget.setName(budget.getName());
 
-                    // Ensure user is still associated with the authenticated user (for consistency)
-                    existingBudget.setUser(existingBudget.getUser());  // No need to update the user, it's already the authenticated user
-
-                    // Save and return the updated budget
+                    //save and return the updated budget
                     Budget updatedBudget = budgetRepository.save(existingBudget);
-                    return mapToBudgetResponse(updatedBudget); // Return mapped response instead of Budget
+                    return mapToBudgetResponse(updatedBudget); //return mapped response instead of Budget
                 })
-                .orElseThrow(() -> new RuntimeException("Budget not found"));
+                .orElseThrow(() -> new BudgetNotFoundException());
     }
 
-    // Delete a budget
+    //delete a budget
     public void delete(Integer budgetId) {
         Integer authenticatedUserId = getAuthenticatedUserId();
 
-        // Retrieve the category by its ID
+        //retrieve the budget by its ID
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new BudgetNotFoundException());
 
-        // Verify that the category belongs to the authenticated user
+        //verify that the budget belongs to the authenticated user
         if (!budget.getUser().getUserId().equals(authenticatedUserId)) {
             throw new UnauthorisedAccessException("Unauthorised delete attempt");
         }
 
-        // If everything is valid, delete the category
+        //if everything is valid, delete the budget
         budgetRepository.deleteById(budgetId);
     }
 
-    // Helper method to map Budget to BudgetResponse DTO
+    //helper method to map Budget to BudgetResponse DTO
     private BudgetResponse mapToBudgetResponse(Budget budget) {
-        User user = budget.getUser(); // Get associated user from Budget
+        User user = budget.getUser(); //get associated user from Budget
         
-        // Map User to UserSummary DTO (avoiding full User details like password)
+        //map User to UserSummary DTO - used to avoid sending password in response 
         UserSummary userSummary = new UserSummary(user.getUserId(), user.getUsername());
         
-        // Create and return the BudgetResponse DTO, including the UserSummary
+        //create and return the BudgetResponse DTO
         return new BudgetResponse(
                 budget.getBudgetId(),
                 budget.getAmount(),
                 budget.getStartDate(),
                 budget.getEndDate(),
                 budget.getName(),
-                userSummary // Only user ID and username will be included, no password,
+                userSummary 
                 
         );
     }
